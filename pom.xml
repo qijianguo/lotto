@@ -9,12 +9,6 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
-    <modules>
-        <module>game-spring-cloud-api</module>
-        <module>game-spring-cloud-core</module>
-        <module>game-spring-cloud-web</module>
-    </modules>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -33,6 +27,7 @@
         <guava.version>28.2-jre</guava.version>
         <jsoup.version>1.11.3</jsoup.version>
         <xsoup.version>0.3.1</xsoup.version>
+        <lombok.version>1.18.12</lombok.version>
     </properties>
 
     <dependencies>
@@ -40,6 +35,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -138,7 +137,19 @@
                 <artifactId>game-spring-cloud-core</artifactId>
                 <version>${game-spring-cloud.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <modules>
+        <module>game-spring-cloud-api</module>
+        <module>game-spring-cloud-core</module>
+        <module>game-spring-cloud-web</module>
+    </modules>
 
 </project>

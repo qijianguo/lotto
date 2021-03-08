@@ -15,11 +15,10 @@ import javax.servlet.ServletContext;
  */
 @SpringBootApplication
 @EnableScheduling
-@MapperScan("com.yincheng.game.*.mapper")
+@MapperScan("com.yincheng.game.mapper")
 public class GameApplication implements ServletContextInitializer {
 
     public static void main(String[] args) {
-
         SpringApplication.run(GameApplication.class, args);
     }
 

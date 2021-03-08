@@ -11,5 +11,12 @@
 
     <artifactId>game-spring-cloud-core</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.yincheng.game</groupId>
+            <artifactId>game-spring-cloud-api</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>
