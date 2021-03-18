@@ -6,28 +6,32 @@ import com.yincheng.game.concurent.GameFlowThreadPoolExecutor.SubThreadPoolExecu
 import com.yincheng.game.concurent.LinkedThreadSubmitStrategy;
 import com.yincheng.game.concurent.ThreadSubmitStrategy;
 import com.yincheng.game.context.GameContext;
-import com.yincheng.game.enums.Destination;
-import com.yincheng.game.enums.GameType;
-import com.yincheng.game.service.WebSocketService;
+import com.yincheng.game.job.GameJobManager;
+import com.yincheng.game.model.enums.Destination;
+import com.yincheng.game.model.enums.GameType;
+import com.yincheng.game.model.po.BetHistory;
+import com.yincheng.game.service.*;
 import com.yincheng.game.job.GameJobContext;
 import com.yincheng.game.listener.GameListener;
 import com.yincheng.game.model.po.GameFlow;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.TaskWsResp;
-import com.yincheng.game.service.FlowNoticeService;
-import com.yincheng.game.service.GameFlowService;
-import com.yincheng.game.service.TaskService;
+import io.swagger.models.auth.In;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 游戏的核心类
@@ -39,6 +43,7 @@ public class Game {
 
     private static Logger logger = LoggerFactory.getLogger(Game.class);
 
+    private static GameFlowThreadPoolExecutor executorInstance;
     @Value("${game.thread.max:64}")
     private Integer totalThreads;
     @Value("${game.thread.default:8}")
@@ -52,17 +57,30 @@ public class Game {
     @Autowired
     private FlowNoticeService flowNoticeService;
     @Autowired
-    private GameFlowService gameFlowService;
-    @Autowired
     private TaskService taskService;
     @Autowired
     private WebSocketService webSocketService;
-
-    private static GameFlowThreadPoolExecutor executorInstance;
+    @Autowired
+    private BetHistoryService betHistoryService;
+    @Autowired
+    private GameFlowService gameFlowService;
+    @Autowired
+    private GameJobManager gameJobManager;
 
     @PostConstruct
     private void init() {
         executorInstance = new GameFlowThreadPoolExecutor(totalThreads);
+
+        // 初始化游戏列表
+        List<GameFlow> gameFlowList = gameFlowService.getAllEnabled();
+        if (CollectionUtils.isEmpty(gameFlowList)) {
+            logger.warn("game list is empty!");
+            return;
+        }
+        gameFlowList.forEach(game -> {
+            gameJobManager.addJob(game);
+        });
+
     }
 
     public void run(GameFlow gameFlow, GameJobContext context) {
@@ -75,27 +93,26 @@ public class Game {
         if (!CollectionUtils.isEmpty(listeners)) {
             listeners.forEach(listener -> listener.beforeStart(context));
         }
-
-        Long prevPeriod = Optional.ofNullable(gameFlow.getNextPeriod()).orElse(-1L);
-        Task task = null;
+        Long prevPeriod = Optional.ofNullable(gameFlow.getPeriod()).orElse(-1L);
+        Task prevTask = null;
+        // 计算上一期的结果
         if (prevPeriod != -1) {
-            String result = getResult(gameFlow.getType());
-            // 计算上一期的结果
-            context.setResult(result);
-            task = taskService.finish(gameFlow.getId(), gameFlow.getNextPeriod(), result);
-            if (task != null) {
-                gameFlow.setResult(result);
+            prevTask = taskService.getByGamePeriod(gameFlow.getId(), gameFlow.getNextPeriod());
+            if (prevTask != null || prevTask.getStatus() == 0) {
+                setResult(gameFlow.getType(), prevTask);
+                taskService.updateResult(prevTask);
+                gameFlow.setResult(prevTask.getResult());
                 gameFlow.setPeriod(gameFlow.getNextPeriod());
             }
         }
         // 通过ws发送给客户端
-        TaskWsResp resp = new TaskWsResp(task, context.getNextTask());
+        TaskWsResp resp = new TaskWsResp(prevTask, context.getNextTask());
         webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
-
-        // TODO 发放上一期奖励
-
+        if (prevTask != null) {
+            // TODO 发放上一期奖励
+            betHistoryService.settle(prevTask, true);
+        }
     }
-
 
     public void run2(GameFlow gameFlow, GameContext context, Map<String, Object> variables) {
         // 当前流程执行线程数
@@ -121,7 +138,7 @@ public class Game {
         } catch (InterruptedException | ExecutionException ignore) {}
     }
 
-    private String getResult(String gameType) {
+    private void setResult(String gameType, Task task) {
         int length = -1;
         // 给出结果
         switch (GameType.match(gameType)) {
@@ -140,16 +157,25 @@ public class Game {
         if (length <= 0) {
             throw new IllegalArgumentException("game type not found, errGameType = " + gameType);
         }
-        StringBuilder joiner = new StringBuilder();
+        List<Integer> nums = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
-            joiner.append(getRandomNumber());
+            nums.add(getSingleNumber());
         }
-        return joiner.toString();
+        task.setResult(StringUtils.join(nums, ","));
+        task.setSum(nums.stream().mapToInt(Integer::intValue).sum());
+        task.setStatus(1);
+        task.setUpdateTime(new Date());
     }
 
-    private String getRandomNumber() {
-        // 随机生成5位数，并取第三位数返回
-        int i = RandomUtils.nextInt(0, 1000);
-        return String.valueOf(i % 9);
+    private Integer getSingleNumber() {
+        // 随机生成4位数
+        return RandomUtils.nextInt(0, 1000) % 10;
+    }
+
+    public static void main(String[] args) {
+        String v = "4,9,2";
+        List<Integer> collect = Arrays.stream(v.split(",")).map(Integer::new).collect(Collectors.toList());
+
+        System.out.println(collect);
     }
 }

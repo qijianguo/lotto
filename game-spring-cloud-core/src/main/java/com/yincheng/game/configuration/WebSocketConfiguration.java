@@ -1,7 +1,7 @@
 package com.yincheng.game.configuration;
 
 import com.yincheng.game.Game;
-import com.yincheng.game.websocket.WebSocketEditorServer;
+import com.yincheng.game.web.websocket.WebSocketEditorServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

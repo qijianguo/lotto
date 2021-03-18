@@ -12,12 +12,18 @@
     <artifactId>game-spring-cloud-web</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <start-class>com.yincheng.game.web.GameApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
             <groupId>com.yincheng.game</groupId>
             <artifactId>game-spring-cloud-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -26,9 +32,15 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <finalName>gameFlow-flow</finalName>
-                    <mainClass>com.yincheng.game.GameApplication</mainClass>
+                    <mainClass>${start-class}</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

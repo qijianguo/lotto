@@ -1,0 +1,54 @@
+server:
+  port: 18088
+  servlet:
+    context-path: /game-web
+
+spring:
+  application:
+    name: game-spring-cloud-web
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_game?useSSL=false&useUnicode=true&characterEncoding=UTF8&autoReconnect=true
+    username: root
+    password: root123456
+    driverClassName: com.mysql.jdbc.Driver
+    hikari:
+      connection-init-sql: set names utf8mb4;
+      minimum-idle: 10
+      maximum-pool-size: 25
+      auto-commit: true
+      idle-timeout: 60000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+      max-lifetime: 120000
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  serialization:
+    fail_on_empty_beans: false
+  mvc:
+    favicon:
+      enabled: false
+
+logging:
+  level:
+    root: DEBUG
+
+gameFlow:
+  thread:
+    max: 64
+    default: 8
+  job:
+    enable: false
+  workspace: ./data/gameFlow
+  bloomfilter:
+    capacity: 1000000
+    error-rate: 0.0001
+  detect:
+    dead-cycle: 5000
+
+swagger:
+  production: false
+  basic:
+    enable: true
+    username: modutest
+    password: UKDFidU712hNklS08PffnB$Ds

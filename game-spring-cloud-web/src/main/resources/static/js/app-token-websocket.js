@@ -2,7 +2,7 @@
 var stompClient = null;
 
 // 设置 WebSocket 进入端点
-var SOCKET_ENDPOINT = "/mydlq";
+var SOCKET_ENDPOINT = "/ws";
 // 设置订阅消息的请求地址前缀
 var SUBSCRIBE_PREFIX  = "/queue";
 // 设置订阅地址
