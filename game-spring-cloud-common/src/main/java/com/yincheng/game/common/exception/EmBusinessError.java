@@ -20,9 +20,14 @@ public enum EmBusinessError implements CommonError {
     /* 20000开头是用户模块错误码 */
     ACCOUNT_INSUFFICIENT_BALANCE(30000, "Your account balance is insufficient."),
 
+
+    GAME_CONFIG_NOT_FOUND(400001, "game config not found")
+
+
     ;
 
     /* 30000开头的为账户模块错误码 */
+
 
 
     private Integer errorCode;

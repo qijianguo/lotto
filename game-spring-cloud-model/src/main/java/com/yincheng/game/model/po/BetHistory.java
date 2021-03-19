@@ -34,6 +34,10 @@ public class BetHistory {
     private String bet;
     /** 下注积分 */
     private Integer credit;
+    /** 赔率 */
+    private String odds;
+    /** 费率 */
+    private String fee;
     /** 开奖结果 */
     private String result;
     /** 状态：0未开奖，1已开奖 */
@@ -53,7 +57,7 @@ public class BetHistory {
         this.gameId = req.getGameId();
         this.period = req.getPeriod();
         this.target = req.getTarget();
-        if (CollectionUtils.isEmpty(req.getBetHlov())) {
+        if (req.isNumBet()) {
             this.bet = StringUtils.join(req.getBetNums(), ",").toUpperCase();
         } else {
             this.bet = StringUtils.join(req.getBetHlov(), ",").toUpperCase();

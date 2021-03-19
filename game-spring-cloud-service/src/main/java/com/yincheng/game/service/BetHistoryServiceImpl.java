@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.dao.mapper.BetHistoryMapper;
+import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.enums.Bet;
+import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.model.po.*;
 import com.yincheng.game.model.vo.BetAddReq;
 import com.yincheng.game.model.vo.BetReq;
@@ -14,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +31,10 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     private BetHistoryService betHistoryService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private GameConfigService gameConfigService;
+    @Autowired
+    private WebSocketService webSocketService;
 
     private static final Double MIDDLE = 4.5;
 
@@ -53,9 +60,11 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         }
         // 多线程执行
         list.forEach(single -> {
-            settle(single, result);
+            Account account = settle(single, result);
             // TODO 通知开奖结果， 放到消息队列
-
+            if (notice && account != null) {
+                webSocketService.send("userid", Destination.account(), account);
+            }
         });
 
     }
@@ -64,13 +73,14 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
      * 计算结果
      * @param betHistory 下注记录
      * @param result 开奖结果
+     * @return 用户账户积分
      */
     @Override
-    public void settle(BetHistory betHistory, List<Integer> result) {
+    public Account settle(BetHistory betHistory, List<Integer> result) {
         // 标的
-        Bet t = Bet.target().get(betHistory.getTarget().toUpperCase());
+        Bet.Target t = Bet.target().get(betHistory.getTarget().toUpperCase());
         // 开奖结果
-        Integer num = getNum(t, result);
+        Integer num = Bet.getTargetNum(t, result);
         List<String> betList = Arrays.stream(betHistory.getBet().split(",")).collect(Collectors.toList());
         AtomicInteger totalCount = new AtomicInteger(0);
         betList.forEach(i -> {
@@ -118,8 +128,10 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         });
         int reward = 0;
         String description;
-        if (totalCount.get() > 0) {
-            reward = betHistory.getCredit() / betList.size() * totalCount.get();
+        int rewardCount = totalCount.get();
+        if (rewardCount > 0) {
+            int credit = betHistory.getCredit() - (int)(betHistory.getCredit() * Double.parseDouble(betHistory.getFee()));
+            reward = (int) (credit / betList.size() * rewardCount * Double.parseDouble(betHistory.getOdds()));
             description = "win";
         } else {
             description = "loss";
@@ -131,44 +143,60 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 .set(BetHistory::getReward, reward)
                 .set(BetHistory::getDescription, description)
                 .update();
+
+        if (rewardCount > 0) {
+            // 更新账户余额
+            AccountDetail detail = new AccountDetail();
+            detail.create(betHistory.getUserId(), reward, AccountDetailType.REWARD);
+            Account account = accountService.betReward(detail);
+            return account;
+        }
+        return null;
     }
 
-    private Integer getNum(Bet t, List<Integer> result) {
-        Integer num = -1;
-        switch (t) {
-            case A:
-                num = result.size() > 1 ? result.get(0) : -1;
-                break;
-            case B:
-                num = result.size() > 2 ? result.get(1) : -1;
-                break;
-            case C:
-                num = result.size() > 3 ? result.get(2) : -1;
-                break;
-            case D:
-                num = result.size() > 4 ? result.get(3) : -1;
-                break;
-            case SUM:
-                break;
-            default:
-        }
-        return num;
-    }
+
 
     @Override
     public Account bet(User user, BetAddReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
+        List<GameConfig> list = gameConfigService.list();
+        if (CollectionUtils.isEmpty(list)) {
+            throw new BusinessException(EmBusinessError.GAME_CONFIG_NOT_FOUND);
+        }
+        Map<String, GameConfig> collect = list.stream().collect(Collectors.toMap(GameConfig::getName, Function.identity()));
+        GameConfig min = collect.get("bet_amount_min");
+        GameConfig max = collect.get("bet_amount_max");
+        if (min == null || max == null) {
+            throw new BusinessException(EmBusinessError.GAME_CONFIG_NOT_FOUND);
+        }
+        if (req.getCredit() < Integer.parseInt(min.getValue()) || req.getCredit() > Integer.parseInt(max.getValue())) {
+            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+        }
+        GameConfig betFee = collect.get("bet_fee");
+        GameConfig singleOdds = collect.get("single_odds");
+        GameConfig numberOdds = collect.get("number_odds");
+
         // 查看开奖状态，如果是已开奖则不能下注
         Task period = taskService.getByGamePeriod(req.getGameId(), req.getPeriod());
         if (period == null || period.getStatus() == 1) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
-        // 更新账户余额
-        Account account = accountService.speed(user, req.getCredit());
 
-        betHistoryService.save(new BetHistory(user, req));
+        // 更新账户余额
+        AccountDetail detail = new AccountDetail();
+        detail.create(user.getId(), req.getCredit(), AccountDetailType.SPEED);
+        Account account = accountService.betSpeed(detail);
+
+        BetHistory betHistory = new BetHistory(user, req);
+        betHistory.setFee(betFee.getValue());
+        if (req.isNumBet()) {
+            betHistory.setOdds(numberOdds.getValue());
+        } else {
+            betHistory.setOdds(singleOdds.getValue());
+        }
+        betHistoryService.save(betHistory);
         return account;
     }
 

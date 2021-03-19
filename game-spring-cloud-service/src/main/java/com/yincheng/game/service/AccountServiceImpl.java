@@ -7,7 +7,6 @@ import com.yincheng.game.dao.mapper.AccountMapper;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.AccountDetail;
-import com.yincheng.game.model.po.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,20 +26,65 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         Account one = lambdaQuery().eq(Account::getUserId, userId).one();
         if (one == null) {
             one = new Account(userId);
-            //save(one);
         }
         return one;
     }
 
     @Override
-    public Account prepaid(User user, Integer credit) {
-        return null;
+    public Account prepaid(AccountDetail detail) {
+        detail.setType(AccountDetailType.PREPAID);
+        return increase(detail);
     }
 
     @Override
-    public Account speed(User user, Integer credit) {
+    public Account betSpeed(AccountDetail detail) {
+        detail.setType(AccountDetailType.SPEED);
+        return decrease(detail);
+    }
+
+    @Override
+    public Account betReward(AccountDetail detail) {
+        detail.setType(AccountDetailType.REWARD);
+        return increase(detail);
+    }
+
+    @Override
+    public Account cashOut(AccountDetail detail) {
+        detail.setType(AccountDetailType.CASH_OUT);
+        return decrease(detail);
+    }
+
+    @Override
+    public Account give(AccountDetail detail) {
+        detail.setType(AccountDetailType.GIFT);
+        return increase(detail);
+    }
+
+    public Account increase(AccountDetail detail) {
+        if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
+            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+        }
+        int credit = detail.getCredit();
         // 校验余额
-        Account account = get(user.getId());
+        Account account = get(detail.getUserId());
+        account.setBalance(account.getBalance() + credit);
+        account.setUpdateTime(new Date());
+        boolean success = saveOrUpdate(account);
+        if (!success) {
+            throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
+        }
+        // 消费明细
+        accountDetailService.save(detail);
+        return account;
+    }
+
+    private Account decrease(AccountDetail detail) {
+        if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
+            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+        }
+        int credit = detail.getCredit();
+        // 校验余额
+        Account account = get(detail.getUserId());
         if (credit > account.getBalance()) {
             throw new BusinessException(EmBusinessError.ACCOUNT_INSUFFICIENT_BALANCE);
         }
@@ -51,7 +95,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
         }
         // 消费明细
-        accountDetailService.speed(account, credit);
+        accountDetailService.save(detail);
         return account;
     }
 }

@@ -32,8 +32,9 @@ public interface BetHistoryService extends IService<BetHistory> {
      * 结算
      * @param betHistory 下注记录
      * @param result 开奖结果
+     * @return
      */
-    void settle(BetHistory betHistory, List<Integer> result);
+    Account settle(BetHistory betHistory, List<Integer> result);
 
 
     /**

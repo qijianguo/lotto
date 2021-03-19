@@ -40,13 +40,29 @@ public class AccountDetail {
     /** 更新时间 */
     private Date updateTime;
 
-    public void speed(Integer userId, Integer credit, AccountDetailType speed) {
+    public void create(Integer userId, Integer credit) {
+        this.userId = userId;
+        this.updateTime = this.createTime = new Date();
+        this.credit = credit;
+    }
+
+    public void setType(AccountDetailType speed) {
+        this.type = speed.getType();
+        this.confirm = speed.getDefConfirm();
+        this.success = speed.getSuccess();
+    }
+
+    public void create(Integer userId, Integer credit, AccountDetailType speed) {
         this.userId = userId;
         this.type = speed.getType();
         this.confirm = speed.getDefConfirm();
         this.success = speed.getSuccess();
         this.updateTime = this.createTime = new Date();
         this.credit = credit;
+    }
+
+    public boolean validate() {
+        return userId != null && type != null && balance != null && credit != null && confirm != null && success != null;
     }
 
 

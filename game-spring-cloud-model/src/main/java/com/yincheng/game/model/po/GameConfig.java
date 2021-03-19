@@ -20,7 +20,7 @@ public class GameConfig {
 
     private String name;
 
-    private String rate;
+    private String value;
 
     private Date createTime;
 

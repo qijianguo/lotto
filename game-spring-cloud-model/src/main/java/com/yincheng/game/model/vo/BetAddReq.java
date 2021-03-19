@@ -26,9 +26,11 @@ public class BetAddReq {
     private List<String> betHlov;
     @ApiModelProperty(value = "积分", dataType = "Integer")
     private Integer credit;
+    @ApiModelProperty(value = "是否是数字", dataType = "Integer", hidden = true)
+    private boolean isNumBet = false;
 
     public boolean validate() {
-        boolean base = gameId != null && period != null && target != null && credit != null && credit > 2000;
+        boolean base = gameId != null && period != null && target != null && credit != null && credit >= 2000;
         boolean bet = false;
         // 数字和其他类型是二选一
         if (CollectionUtils.isEmpty(betNums)) {
@@ -37,7 +39,7 @@ public class BetAddReq {
             }
         } else {
             if (credit % betNums.size() == 0 && CollectionUtils.isEmpty(betHlov)) {
-                bet = true;
+                bet = isNumBet = true;
             }
         }
         return base && bet;

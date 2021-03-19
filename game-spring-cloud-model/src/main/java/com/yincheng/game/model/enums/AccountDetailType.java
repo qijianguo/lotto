@@ -8,6 +8,7 @@ import lombok.Getter;
 
 @Getter
 public enum AccountDetailType {
+
     /** 充值 */
     PREPAID(1, 1, 1),
     /** 消费 */
@@ -16,6 +17,8 @@ public enum AccountDetailType {
     CASH_OUT(3, 0, 0),
     /** 赠送 */
     GIFT(4, 1, 1),
+    /** 收入 */
+    REWARD(5, 1, 1),
     ;
 
     /**

@@ -19,18 +19,39 @@ public interface AccountService extends IService<Account> {
 
     /**
      * 充值
-     * @param user 用户
-     * @param credit 充值积分
+     * @param detail 充值积分
      * @return 账户余额
      */
-    Account prepaid(User user, Integer credit);
+    Account prepaid(AccountDetail detail);
 
     /**
-     * 消费
-     * @param user 用户
-     * @param credit 消费积分
+     * 下注支出
+     * @param detail 消费详情
      * @return 账户余额
      */
-    Account speed(User user, Integer credit);
+    Account betSpeed(AccountDetail detail);
+
+    /**
+     * 中奖收入
+     * @param detail 收入详情
+     * @return
+     */
+    Account betReward(AccountDetail detail);
+
+    /**
+     * 提现支出
+     * @param detail 收入详情
+     * @return
+     */
+    Account cashOut(AccountDetail detail);
+
+    /**
+     * 奖励收入
+     * @param detail 收入详情
+     * @return
+     */
+    Account give(AccountDetail detail);
+
+
 
 }
