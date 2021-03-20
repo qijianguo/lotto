@@ -12,16 +12,24 @@ public enum EmBusinessError implements CommonError {
     DATE_FORMAT_ERROR(10004, "日期格式不正确"),
     ACCESS_DENIED(10005, "用户状态异常"),
     REPEAT_COMMIT_ERROR(10006, "请不要重复提交哦"),
-    SYSTEM_TIME_ERROR(10007, "系统时间异常，请重新设置"),
-    RESOURCE_ALREADY_EXISTS(10009, "记录已存在"),
-    SIGN_ERROR(10010, "签名错误"),
-    PARAMETER_ERROR(11000, "参数有误哦"),
+    TIME_ERROR(10007, "系统时间异常，请重新设置"),
+    SIGN_ERROR(10010, "Sign error."),
+    PARAMETER_ERROR(11000, "Params error."),
+
+    // USER
+    USER_NO_PERMISSION(11001, "No permission."),
+    USER_TOKEN_EXPIRED(20001, "Please login."),
+    USER_TOKEN_INVALID(20002, "Invalid token"),
 
     /* 20000开头是用户模块错误码 */
     ACCOUNT_INSUFFICIENT_BALANCE(30000, "Your account balance is insufficient."),
 
+    REWARD_REPEATED_ERROR(30001, "Cannot get reward repeated."),
 
-    GAME_CONFIG_NOT_FOUND(400001, "game config not found")
+    INVALID_PHONE_CODE(31000, "Invalid phone code！"),
+
+
+    GAME_CONFIG_NOT_FOUND(400001, "Game config not found")
 
 
     ;

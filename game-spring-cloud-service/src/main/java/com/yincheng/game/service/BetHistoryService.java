@@ -1,5 +1,6 @@
 package com.yincheng.game.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.BetHistory;
@@ -50,6 +51,6 @@ public interface BetHistoryService extends IService<BetHistory> {
      * @param req
      * @return
      */
-    List<BetHistory> list(User user, BetReq req);
+    IPage<BetHistory> list(User user, BetReq req);
 
 }

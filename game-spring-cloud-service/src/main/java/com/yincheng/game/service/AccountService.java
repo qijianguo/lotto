@@ -43,14 +43,14 @@ public interface AccountService extends IService<Account> {
      * @param detail 收入详情
      * @return
      */
-    Account cashOut(AccountDetail detail);
+    Account withdraw(AccountDetail detail);
 
     /**
      * 奖励收入
      * @param detail 收入详情
      * @return
      */
-    Account give(AccountDetail detail);
+    Account giving(AccountDetail detail);
 
 
 

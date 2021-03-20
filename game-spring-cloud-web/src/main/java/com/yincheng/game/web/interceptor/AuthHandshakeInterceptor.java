@@ -5,9 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 /**
@@ -31,6 +33,8 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse serverHttpResponse,
                                    WebSocketHandler webSocketHandler, Map<String, Object> attributes) throws Exception {
         if (request instanceof ServletServerHttpRequest) {
+            HttpSession session = ((ServletServerHttpRequest) request).getServletRequest().getSession();
+            System.out.println("WEBSOCKET:===========" + session.getId());
             // TODO 校验请求参数合法性
             String token = ((ServletServerHttpRequest) request).getServletRequest().getParameter("token");
             if (!validate()) {

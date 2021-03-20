@@ -111,6 +111,7 @@ public class Game {
         for (int i = 0; i < length; i++) {
             nums.add(getSingleNumber());
         }
+
         task.setResult(StringUtils.join(nums, ","));
         task.setSum(nums.stream().mapToInt(Integer::intValue).sum());
         task.setStatus(1);
@@ -119,7 +120,7 @@ public class Game {
 
     private Integer getSingleNumber() {
         // 随机生成4位数
-        return RandomUtils.nextInt(0, 1000) % 10;
+        return RandomUtils.nextInt(0, 100) % 10;
     }
 
 }

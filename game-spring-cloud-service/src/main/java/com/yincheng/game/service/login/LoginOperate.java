@@ -2,11 +2,14 @@ package com.yincheng.game.service.login;
 
 import com.yincheng.game.model.enums.LoginMode;
 import com.yincheng.game.model.vo.LoginPhoneReq;
+import com.yincheng.game.model.vo.LoginReq;
+import org.springframework.stereotype.Component;
 
 /**
  * @author qijianguo
  */
-public class AbstractLoginOperate {
+@Component
+public class LoginOperate {
 
     public static Login create(LoginMode loginMode) {
         switch (loginMode) {
@@ -20,8 +23,8 @@ public class AbstractLoginOperate {
     }
 
     public static void main(String[] args) {
-        Login login = AbstractLoginOperate.create(LoginMode.PHONE);
-        LoginPhoneReq phone = new LoginPhoneReq();
+        Login login = LoginOperate.create(LoginMode.PHONE);
+        LoginReq phone = new LoginReq();
         phone.setPhone("111111");
         phone.setCode("1111");
         login.execute(phone);

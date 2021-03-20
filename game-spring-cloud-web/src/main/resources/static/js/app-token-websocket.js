@@ -8,7 +8,7 @@ var SUBSCRIBE_PREFIX  = "/queue";
 // 设置订阅地址
 var SUBSCRIBE = "";
 // 设置服务器端点，访问服务器中哪个接口
-var SEND_ENDPOINT = "/app/token";
+var SEND_ENDPOINT = "/app/test";
 
 /* 进行连接 */
 function connect() {
@@ -34,7 +34,7 @@ function subscribeSocket(){
     stompClient.subscribe("/user" + SUBSCRIBE, function (responseBody) {
         var receiveMessage = JSON.parse(responseBody.body);
         console.log(receiveMessage);
-        $("#information").append("" + receiveMessage.content + "");
+        $("#information").append("<tr><td>" + receiveMessage.content + "</td></tr>");
     });
 }
 
@@ -54,5 +54,6 @@ function sendMessageNoParameter() {
     // 设置待发送的消息内容
     var message = '{"targetUser":"' + sendUser + '", "destination": "' + SUBSCRIBE + '", "content": "' + sendContent + '"}';
     // 发送消息
+    alert(SEND_ENDPOINT + "======" + message)
     stompClient.send(SEND_ENDPOINT, {}, message);
 }

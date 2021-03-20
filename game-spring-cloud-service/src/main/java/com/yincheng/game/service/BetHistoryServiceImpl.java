@@ -1,5 +1,6 @@
 package com.yincheng.game.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
@@ -91,7 +92,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                     // 中奖
                     totalCount.incrementAndGet();
                 }
-            } catch (Exception ignore) {
+            } catch (NumberFormatException ignore) {
                 // 非数字
                 Bet.Mode mode1 = Bet.mode().get(i.toUpperCase());
                 if (mode1 == null) {
@@ -124,6 +125,8 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                         break;
                     default:
                 }
+            } catch (Exception other) {
+                throw other;
             }
         });
         int reward = 0;
@@ -178,12 +181,12 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         GameConfig singleOdds = collect.get("single_odds");
         GameConfig numberOdds = collect.get("number_odds");
 
-        // 查看开奖状态，如果是已开奖则不能下注
+        // 查看开奖状态，如果是已开奖则不能下注, 不在时间段内不能下注
         Task period = taskService.getByGamePeriod(req.getGameId(), req.getPeriod());
-        if (period == null || period.getStatus() == 1) {
+        Date now = new Date();
+        if (period == null || period.getStatus() == 1 || now.before(period.getStartTime()) || now.after(period.getEndTime())) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
-
         // 更新账户余额
         AccountDetail detail = new AccountDetail();
         detail.create(user.getId(), req.getCredit(), AccountDetailType.SPEED);
@@ -201,15 +204,15 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     }
 
     @Override
-    public List<BetHistory> list(User user, BetReq req) {
+    public IPage<BetHistory> list(User user, BetReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
-        return lambdaQuery().eq(BetHistory::getGameId, req.getGameId())
-                .eq(BetHistory::getUserId, user.getId())
+        return lambdaQuery().eq(BetHistory::getUserId, user.getId())
+                .eq(BetHistory::getGameId, req.getGameId())
                 .eq(BetHistory::getPeriod, req.getPeriod())
                 .eq(BetHistory::getTarget, req.getTarget())
-                .list();
+                .page(req);
     }
 
 }

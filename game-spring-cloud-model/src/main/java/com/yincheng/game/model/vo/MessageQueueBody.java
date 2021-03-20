@@ -1,12 +1,14 @@
 package com.yincheng.game.model.vo;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 点对点消息推送
  * @author qijianguo
  */
 @Data
+@NoArgsConstructor
 public class MessageQueueBody extends MessageBody {
 
     /** 发送消息的用户 */

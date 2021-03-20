@@ -21,7 +21,7 @@ public class AccountDetail {
     private Integer id;
     /** 用户ID */
     private Integer userId;
-    /** 类型：1充值，2消费，3提现 */
+    /** 类型：1充值，2消费，3提现 4赠送，5中奖，-1 其他 */
     private Integer type;
     /** 余额 */
     private Integer balance;
@@ -40,12 +40,6 @@ public class AccountDetail {
     /** 更新时间 */
     private Date updateTime;
 
-    public void create(Integer userId, Integer credit) {
-        this.userId = userId;
-        this.updateTime = this.createTime = new Date();
-        this.credit = credit;
-    }
-
     public void setType(AccountDetailType speed) {
         this.type = speed.getType();
         this.confirm = speed.getDefConfirm();
@@ -57,8 +51,8 @@ public class AccountDetail {
         this.type = speed.getType();
         this.confirm = speed.getDefConfirm();
         this.success = speed.getSuccess();
-        this.updateTime = this.createTime = new Date();
         this.credit = credit;
+        this.updateTime = this.createTime = new Date();
     }
 
     public boolean validate() {

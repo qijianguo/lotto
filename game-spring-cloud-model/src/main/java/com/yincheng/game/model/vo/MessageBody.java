@@ -1,11 +1,13 @@
 package com.yincheng.game.model.vo;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author qijianguo
  */
 @Data
+@NoArgsConstructor
 public class MessageBody {
 
     private String destination;

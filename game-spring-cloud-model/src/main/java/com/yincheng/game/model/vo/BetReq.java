@@ -1,6 +1,6 @@
 package com.yincheng.game.model.vo;
 
-import com.yincheng.game.model.PageReq;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @ApiModel(value = "下注")
 @Data
-public class BetReq extends PageReq {
+public class BetReq extends Page {
 
     @ApiModelProperty(value = "游戏ID", required = true, dataType = "Integer")
     private Integer gameId;

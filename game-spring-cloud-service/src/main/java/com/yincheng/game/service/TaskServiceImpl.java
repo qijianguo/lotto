@@ -1,9 +1,12 @@
 package com.yincheng.game.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yincheng.game.dao.mapper.TaskMapper;
 import com.yincheng.game.model.po.Task;
+import com.yincheng.game.model.vo.PeriodReq;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,6 +24,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public void updateResult(Task task) {
         updateById(task);
+    }
+
+    @Override
+    public IPage<Task> getPeriodPage(PeriodReq req) {
+        return lambdaQuery()
+                .eq(Task::getGameId, req.getGameId())
+                .page(req);
     }
 
 

@@ -3,6 +3,9 @@ package com.yincheng.game.service.login;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.po.UserAuth;
 import com.yincheng.game.model.vo.LoginFbReq;
+import com.yincheng.game.model.vo.LoginReq;
+import com.yincheng.game.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,29 +14,25 @@ import java.util.List;
  * @author qijianguo
  */
 @Component
-public class FacebookLogin implements Login<LoginFbReq> {
+public class FacebookLogin implements Login {
 
     @Override
-    public User execute(LoginFbReq params) {
-
+    public User execute(LoginReq req) {
         return null;
     }
 
     @Override
-    public void verify(LoginFbReq req) {
-        System.out.println("Facebook verify");
-    }
-
-    @Override
-    public List<UserAuth> register(LoginFbReq params) {
-
-        System.out.println("Facebook verify");
+    public List<UserAuth> verify(LoginReq req) {
         return null;
     }
 
     @Override
-    public User signIn(List<UserAuth> auths) {
-        System.out.println("Facebook signIn");
+    public User register(LoginReq req) {
         return null;
+    }
+
+    @Override
+    public void updateToken(User user) {
+
     }
 }

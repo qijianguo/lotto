@@ -5,6 +5,8 @@ import com.yincheng.game.web.interceptor.AuthHandshakeInterceptor;
 import com.yincheng.game.web.interceptor.HttpWebSocketHandlerDecoratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -20,7 +22,6 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
     /**
      * 配置 WebSocket 进入点，及开启使用 SockJS，这些配置主要用配置连接端点，用于 WebSocket 连接
@@ -50,14 +51,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setUserDestinationPrefix("/user");
     }
 
-    @Override
-    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry.addDecoratorFactory(new HttpWebSocketHandlerDecoratorFactory());
-    }
+//    @Override
+//    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+//        registry.addDecoratorFactory(new HttpWebSocketHandlerDecoratorFactory());
+//    }
+
+    @Autowired
+    private AuthChannelInterceptor authChannelInterceptor;
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new AuthChannelInterceptor());
+        registration.interceptors(authChannelInterceptor);
+        //registration.interceptors(authChannelInterceptor());
     }
+
+//    @Bean
+//    public AuthChannelInterceptor authChannelInterceptor() {
+//        return new AuthChannelInterceptor();
+//    }
 
 }

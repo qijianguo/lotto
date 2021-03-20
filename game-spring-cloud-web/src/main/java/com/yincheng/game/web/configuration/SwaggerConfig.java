@@ -1,5 +1,7 @@
 package com.yincheng.game.web.configuration;
 
+import com.yincheng.game.model.anno.CurrentUser;
+import com.yincheng.game.model.po.User;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -38,8 +40,8 @@ public class SwaggerConfig {
                 .globalResponseMessage(RequestMethod.POST, apiResponseCode())
                 .globalResponseMessage(RequestMethod.PUT, apiResponseCode())
                 .globalResponseMessage(RequestMethod.DELETE, apiResponseCode())
-                /*.ignoredParameterTypes(CurrentUser.class)
-                .ignoredParameterTypes(UserBo.class)*/;
+                .ignoredParameterTypes(CurrentUser.class)
+                .ignoredParameterTypes(User.class);
     }
 
     private ApiInfo apiInfo() {

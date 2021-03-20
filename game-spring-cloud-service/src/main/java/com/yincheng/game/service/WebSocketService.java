@@ -23,7 +23,8 @@ public class WebSocketService<T> {
      * @param data
      */
     public void send(String destination, Object data) {
-        send(new MessageBody(destination, JSON.toJSONString(data, FastJsonSerializer.serializeConfig)));
+        //send(new MessageBody(destination, JSON.toJSONString(data, FastJsonSerializer.serializeConfig)));
+        send(new MessageQueueBody("1", destination, JSON.toJSONString(data, FastJsonSerializer.serializeConfig)));
     }
 
     /**

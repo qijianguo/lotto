@@ -1,5 +1,8 @@
 package com.yincheng.game.web.interceptor;
 
+import com.yincheng.game.model.Constants;
+import com.yincheng.game.service.TokenService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -9,6 +12,7 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,9 +27,12 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
 
     private static Map<String, String> userTokenMap = new ConcurrentHashMap<>();
 
+    @Autowired
+    private TokenService tokenService;
+
     static {
-        userTokenMap.put("123456-1", "user1");
-        userTokenMap.put("123456-2", "user2");
+        userTokenMap.put("1", "2");
+        userTokenMap.put("2", "1");
     }
 
     /**
@@ -39,9 +46,25 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     public Message preSend(Message message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         String token = getToken(message);
-        if (!StringUtils.isEmpty(token) && accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-            if (auth(token)) {
-                accessor.setUser(() -> userTokenMap.get(token));
+        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+            // 如果token不为空，说明用户已登录， username = id
+            // 如果token为空，则用户未登录，username = sessionId
+            if (!StringUtils.isEmpty(token)) {
+                //String username = tokenService.verify(token);
+                //accessor.setUser(() -> username);
+                Principal principal = new Principal() {
+                    @Override
+                    public String getName() {
+                        String username = userTokenMap.get(token);
+                        return username;
+                    }
+                };
+                accessor.setUser(principal);
+            } else {
+                String session = getSession(message);
+                if (!StringUtils.isEmpty(session)) {
+                    accessor.setUser(() -> session);
+                }
             }
         }
         return message;
@@ -58,6 +81,21 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         if (headers !=null && headers.containsKey("token")){
             List token = (List)headers.get("token");
             return String.valueOf(token.get(0));
+        }
+        return null;
+    }
+
+    /**
+     * 从 Header 中获取 TOKEN
+     *
+     * @param message 消息对象
+     * @return TOKEN
+     */
+    private String getSession(Message message){
+        Map headers = (Map) message.getHeaders().get("nativeHeaders");
+        if (headers !=null && headers.containsKey("session")){
+            List session = (List)headers.get("session");
+            return String.valueOf(session.get(0));
         }
         return null;
     }

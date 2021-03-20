@@ -49,13 +49,13 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    public Account cashOut(AccountDetail detail) {
-        detail.setType(AccountDetailType.CASH_OUT);
+    public Account withdraw(AccountDetail detail) {
+        detail.setType(AccountDetailType.WITHDRAW);
         return decrease(detail);
     }
 
     @Override
-    public Account give(AccountDetail detail) {
+    public Account giving(AccountDetail detail) {
         detail.setType(AccountDetailType.GIFT);
         return increase(detail);
     }
@@ -65,15 +65,23 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         int credit = detail.getCredit();
-        // 校验余额
         Account account = get(detail.getUserId());
+        // 是否是奖励
+        if (AccountDetailType.GIFT.getType().equals(detail.getType())) {
+            if (account.getStatus() != 0) {
+                throw new BusinessException(EmBusinessError.REWARD_REPEATED_ERROR);
+            }
+            account.setStatus(1);
+        }
         account.setBalance(account.getBalance() + credit);
         account.setUpdateTime(new Date());
+
         boolean success = saveOrUpdate(account);
         if (!success) {
             throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
         }
         // 消费明细
+        detail.setBalance(account.getBalance());
         accountDetailService.save(detail);
         return account;
     }
@@ -94,6 +102,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if (!success) {
             throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
         }
+        detail.setBalance(account.getBalance());
         // 消费明细
         accountDetailService.save(detail);
         return account;

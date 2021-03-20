@@ -14,7 +14,7 @@ public enum AccountDetailType {
     /** 消费 */
     SPEED(2, 1, 1),
     /** 提现 */
-    CASH_OUT(3, 0, 0),
+    WITHDRAW(3, 0, 0),
     /** 赠送 */
     GIFT(4, 1, 1),
     /** 收入 */
