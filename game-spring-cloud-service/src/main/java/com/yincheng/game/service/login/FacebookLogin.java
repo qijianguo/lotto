@@ -49,7 +49,7 @@ public class FacebookLogin implements Login {
     public User register(LoginReq req) {
         String accessToken = facebookService.getAccessToken(req.getCode());
         FacebookUserResp userInfo = facebookService.getUserInfo(accessToken);
-        List<UserAuth> userAuths = userAuthService.getUserAuths(req.getType(), userInfo.getThird_party_id());
+        List<UserAuth> userAuths = userAuthService.getUserAuths(req.getType(), userInfo.getId());
         User user;
         if (!CollectionUtils.isEmpty(userAuths)) {
             // 已经注册过了
@@ -61,7 +61,7 @@ public class FacebookLogin implements Login {
             user.init(userInfo.getName(), userInfo.getPicture());
             boolean save = userService.save(user);
             if (save) {
-                UserAuth userAuth = new UserAuth(user.getId(), req.getType(), userInfo.getThird_party_id(), "");
+                UserAuth userAuth = new UserAuth(user.getId(), req.getType(), userInfo.getId(), "");
                 userAuthService.save(userAuth);
                 user.getAuths().add(userAuth);
             }
