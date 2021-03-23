@@ -53,9 +53,9 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public User login(LoginFacebookReq req) {
-        if (!req.validate()) {
+        /*if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
-        }
+        }*/
         // 验证AccessToken
         facebookService.verifyAccessToken(req.getAccessToken(), req.getFbUid());
         User register = facebookLogin.register(req.getFbUid(), req.getNickName(), req.getAvatar());

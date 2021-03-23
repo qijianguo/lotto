@@ -105,6 +105,27 @@ public class FacebookService {
     }
 
     /**
+     * 调用图谱API，验证用户是否是来自我的应用
+     * @param accessToken
+     */
+    public FacebookDebugTokenResp verifyAccessToken(String accessToken) {
+        String appToken = getAccessToken();
+        // https://graph.facebook.com/debug_token?access_token=
+        // https://graph.facebook.com/debug_token?access_token={Your AppId}%7C{Your AppSecret}&input_token=XXX
+        String url = String.format("%s?access_token=%s&input_token=%s",
+                DEBUG_TOKEN, APP_ID + "%7C" + APP_SECRET, accessToken);
+        try {
+            String result = HttpUtils.getInstance().executeGetWithSSL(url);
+            logger.info("verifyAccessToken:{}", result);
+            FacebookDebugTokenResp resp = JSON.parseObject(result, FacebookDebugTokenResp.class);
+            return resp;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        throw new BusinessException(EmBusinessError.INVALID_FACEBOOK_ACC_TOKEN);
+    }
+
+    /**
      * 获取应用口令（用来验证口令是否来自我的应用）
      * @return
      */
