@@ -9,6 +9,8 @@ import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.PeriodReq;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 任务
  * @author qijianguo
@@ -33,5 +35,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 .page(req);
     }
 
+    @Override
+    public List<Task> getPeriod(PeriodReq req) {
+        IPage<Task> periodPage = getPeriodPage(req);
+        return periodPage.getRecords();
+    }
 
 }

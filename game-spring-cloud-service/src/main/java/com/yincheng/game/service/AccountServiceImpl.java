@@ -32,31 +32,31 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     public Account prepaid(AccountDetail detail) {
-        detail.setType(AccountDetailType.PREPAID);
+        detail.setDetailType(AccountDetailType.PREPAID);
         return increase(detail);
     }
 
     @Override
     public Account betSpeed(AccountDetail detail) {
-        detail.setType(AccountDetailType.SPEED);
+        detail.setDetailType(AccountDetailType.SPEED);
         return decrease(detail);
     }
 
     @Override
     public Account betReward(AccountDetail detail) {
-        detail.setType(AccountDetailType.REWARD);
+        detail.setDetailType(AccountDetailType.REWARD);
         return increase(detail);
     }
 
     @Override
     public Account withdraw(AccountDetail detail) {
-        detail.setType(AccountDetailType.WITHDRAW);
+        detail.setDetailType(AccountDetailType.WITHDRAW);
         return decrease(detail);
     }
 
     @Override
     public Account giving(AccountDetail detail) {
-        detail.setType(AccountDetailType.GIFT);
+        detail.setDetailType(AccountDetailType.GIFT);
         return increase(detail);
     }
 

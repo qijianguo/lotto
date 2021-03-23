@@ -18,6 +18,9 @@ public class AccountResp {
     private Integer balance;
 
     public AccountResp(Account account) {
-        this.balance = account != null ? account.getBalance() : 0;
+        if (account != null) {
+            this.balance = account.getBalance();
+            this.status = account.getStatus();
+        }
     }
 }

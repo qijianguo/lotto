@@ -36,22 +36,20 @@ public class PhoneLogin implements Login {
     }
 
     @Override
-    public List<UserAuth> verify(LoginReq req) {
+    public void verify(LoginReq req) {
         // TODO 验证码是否正确
         String phone = req.getPhone();
         String code = req.getCode();
         if (phone.equals("17521226604") && !code.equals("1234")) {
             throw new BusinessException(EmBusinessError.INVALID_PHONE_CODE);
         }
-        List<UserAuth> userAuths = userAuthService.getUserAuths(req.getType(), req.getPhone());
-        return userAuths;
     }
 
     @Override
     public User register(LoginReq req) {
         List<UserAuth> userAuths = userAuthService.getUserAuths(req.getType(), req.getPhone());
         // 查看是否已经注册过，没有的话注册一下
-        User user = null;
+        User user;
         if (!CollectionUtils.isEmpty(userAuths)) {
             // 已经注册过了
             user = userService.getById(userAuths.get(0).getUserId());
@@ -68,6 +66,11 @@ public class PhoneLogin implements Login {
             }
         }
         return user;
+    }
+
+    @Override
+    public User register(String unionId, String nickName, String cover) {
+        return null;
     }
 
     @Override

@@ -15,23 +15,21 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author qijianguo
  */
 @RestController
 @RequestMapping("/bet")
-@Api(tags = "下注")
+@Api(tags = "下注管理")
 public class BetHistoryController {
 
     @Autowired
@@ -40,7 +38,7 @@ public class BetHistoryController {
     @ApiOperation(value = "下注", response = BetResp.class)
     @PostMapping
     @Authentication
-    public Result add(@CurrentUser User user, BetAddReq req) {
+    public Result add(@ApiIgnore @CurrentUser User user, BetAddReq req) {
         Account bet = betHistoryService.bet(user, req);
         BetResp resp = new BetResp();
         resp.setBalance(bet.getBalance());
@@ -50,7 +48,7 @@ public class BetHistoryController {
     @ApiOperation(value = "我的下注列表", response = BetHistoryResp.class)
     @GetMapping
     @Authentication
-    public Result list(@CurrentUser User user, BetReq req) {
+    public Result list(@ApiIgnore @CurrentUser User user, BetReq req) {
         IPage<BetHistory> page = betHistoryService.list(user, req);
         IPage<BetHistoryResp> result = new Page<>();
         BeanUtils.copyProperties(page, result);

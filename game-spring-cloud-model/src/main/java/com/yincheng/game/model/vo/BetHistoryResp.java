@@ -1,5 +1,6 @@
 package com.yincheng.game.model.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -8,26 +9,25 @@ import lombok.Data;
 @Data
 public class BetHistoryResp {
 
-    /** 期号 */
+    @ApiModelProperty(value = "期号", required = true, dataType = "Long")
     private Long period;
-    /** 标的 */
+    @ApiModelProperty(value = "标的:A,B,C,D,SUM", required = true, dataType = "String")
     private String target;
-    /** 下注 */
+    @ApiModelProperty(value = "下注", required = true, dataType = "String")
     private String bet;
-    /** 下注积分 */
+    @ApiModelProperty(value = "下注积分", required = true, dataType = "Integer")
     private Integer credit;
-    /** 赔率 */
+    @ApiModelProperty(value = "odds", required = true, dataType = "Integer")
     private String odds;
-    /** 费率 */
+    @ApiModelProperty(value = "费率", required = true, dataType = "Integer")
     private String fee;
-    /** 开奖结果 */
+    @ApiModelProperty(value = "result", required = true, dataType = "Integer")
     private String result;
-    /** 状态：0未开奖，1已开奖 */
+    @ApiModelProperty(value = "状态：0未开奖，1已开奖 ", required = true, dataType = "Integer")
     private Integer status;
-    /** 描述 */
+    @ApiModelProperty(value = "描述", required = true, dataType = "String")
     private String description;
-    /** 奖励金额 */
+    @ApiModelProperty(value = "奖励金额", required = true, dataType = "Integer")
     private Integer reward;
-
 
 }

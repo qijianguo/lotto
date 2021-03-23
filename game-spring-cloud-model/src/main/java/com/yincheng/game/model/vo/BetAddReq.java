@@ -23,7 +23,7 @@ public class BetAddReq {
     @ApiModelProperty(value = "下注数字", required = true, dataType = "String")
     private List<Integer> betNums;
     @ApiModelProperty(value = "下注区间", required = true, dataType = "String")
-    private List<String> betHlov;
+    private List<String> betHloe;
     @ApiModelProperty(value = "积分", dataType = "Integer")
     private Integer credit;
     @ApiModelProperty(value = "是否是数字", dataType = "Integer", hidden = true)
@@ -34,11 +34,11 @@ public class BetAddReq {
         boolean bet = false;
         // 数字和其他类型是二选一
         if (CollectionUtils.isEmpty(betNums)) {
-            if (!CollectionUtils.isEmpty(betHlov) && credit % betHlov.size() == 0) {
+            if (!CollectionUtils.isEmpty(betHloe) && credit % betHloe.size() == 0) {
                 bet = true;
             }
         } else {
-            if (credit % betNums.size() == 0 && CollectionUtils.isEmpty(betHlov)) {
+            if (credit % betNums.size() == 0 && CollectionUtils.isEmpty(betHloe)) {
                 bet = isNumBet = true;
             }
         }

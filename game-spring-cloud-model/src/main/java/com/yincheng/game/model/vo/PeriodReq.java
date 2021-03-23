@@ -16,6 +16,11 @@ public class PeriodReq extends Page {
     private Integer gameId;
 
     public boolean validate() {
+        long size = getSize();
+        int max = 100;
+        if (size > max) {
+            setSize(max);
+        }
         return gameId != null;
     }
 

@@ -1,12 +1,9 @@
 package com.yincheng.game.model.enums;
 
-import lombok.Getter;
 
 /**
  * @author qijianguo
  */
-
-@Getter
 public enum AccountDetailType {
 
     /** 充值 */
@@ -42,4 +39,15 @@ public enum AccountDetailType {
         this.success = success;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public Integer getDefConfirm() {
+        return defConfirm;
+    }
+
+    public Integer getSuccess() {
+        return success;
+    }
 }

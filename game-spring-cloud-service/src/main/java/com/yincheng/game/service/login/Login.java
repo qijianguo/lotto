@@ -17,7 +17,7 @@ public interface Login {
      * 参数校验
      * @param req
      */
-    List<UserAuth> verify(LoginReq req);
+    void verify(LoginReq req);
 
     /**
      * 获取注册信息
@@ -25,6 +25,8 @@ public interface Login {
      * @return
      */
     User register(LoginReq req);
+
+    User register(String unionId, String nickName, String cover);
 
     void updateToken(User user);
 

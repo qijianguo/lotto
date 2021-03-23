@@ -7,7 +7,6 @@ import com.yincheng.game.model.vo.BetAddReq;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 
@@ -60,7 +59,7 @@ public class BetHistory {
         if (req.isNumBet()) {
             this.bet = StringUtils.join(req.getBetNums(), ",").toUpperCase();
         } else {
-            this.bet = StringUtils.join(req.getBetHlov(), ",").toUpperCase();
+            this.bet = StringUtils.join(req.getBetHloe(), ",").toUpperCase();
         }
         this.credit = req.getCredit();
         this.result = "";

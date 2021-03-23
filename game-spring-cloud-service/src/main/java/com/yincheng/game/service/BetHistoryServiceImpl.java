@@ -14,6 +14,7 @@ import com.yincheng.game.model.vo.BetReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,8 +61,8 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             return;
         }
         // 多线程执行
-        list.forEach(single -> {
-            Account account = settle(single, result);
+        list.forEach(bet -> {
+            Account account = settle(bet, result);
             // TODO 通知开奖结果， 放到消息队列
             if (notice && account != null) {
                 webSocketService.send("userid", Destination.account(), account);
@@ -178,7 +179,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         GameConfig betFee = collect.get("bet_fee");
-        GameConfig singleOdds = collect.get("single_odds");
+        GameConfig singleOdds = collect.get("high_low_odd_even_odds");
         GameConfig numberOdds = collect.get("number_odds");
 
         // 查看开奖状态，如果是已开奖则不能下注, 不在时间段内不能下注
@@ -210,8 +211,8 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         }
         return lambdaQuery().eq(BetHistory::getUserId, user.getId())
                 .eq(BetHistory::getGameId, req.getGameId())
-                .eq(BetHistory::getPeriod, req.getPeriod())
-                .eq(BetHistory::getTarget, req.getTarget())
+                .eq(req.getPeriod() != null, BetHistory::getPeriod, req.getPeriod())
+                .eq(!StringUtils.isEmpty(req.getTarget()), BetHistory::getTarget, req.getTarget())
                 .page(req);
     }
 

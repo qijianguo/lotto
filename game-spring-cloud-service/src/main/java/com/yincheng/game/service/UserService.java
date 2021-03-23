@@ -9,13 +9,5 @@ import com.yincheng.game.model.vo.LoginReq;
  */
 public interface UserService extends IService<User> {
 
-    /**
-     * 注册或登录
-     * @param req
-     * @return
-     */
-    User login(LoginReq req);
-
-
 
 }

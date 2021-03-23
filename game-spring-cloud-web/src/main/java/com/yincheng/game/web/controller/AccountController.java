@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,14 +44,15 @@ public class AccountController {
 
     @ApiOperation(value = "账户余额", response = AccountResp.class)
     @PostMapping
-    public Result account(@CurrentUser User user) {
+    @Authentication
+    public Result account(@ApiIgnore @CurrentUser User user) {
         Account account = accountService.get(user.getId());
         return Result.success(new AccountResp(account));
     }
 
     @ApiOperation(value = "申请提现", response = AccountResp.class)
     @PostMapping("/withdraw")
-    public Result withdraw(@CurrentUser User user, AccountWithdrawReq req) {
+    public Result withdraw(@ApiIgnore @CurrentUser User user, AccountWithdrawReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
@@ -63,7 +65,7 @@ public class AccountController {
     @ApiOperation(value = "账户明细", response = AccountDetailResp.class)
     @PostMapping("/detail")
     @Authentication
-    public Result list(@CurrentUser User user, AccountDetailReq req) {
+    public Result list(@ApiIgnore @CurrentUser User user, AccountDetailReq req) {
         IPage<AccountDetail> page = accountDetailService.page(user, req);
         List<AccountDetail> records = page.getRecords();
         IPage result = new Page();
@@ -74,9 +76,9 @@ public class AccountController {
 
     @ApiOperation(value = "首次注册赠送积分", response = AccountResp.class)
     @PostMapping("/reward")
-    public Result giving(@CurrentUser User user) {
+    public Result giving(@ApiIgnore @CurrentUser User user) {
         AccountDetail detail = new AccountDetail();
-        detail.create(user.getId(), 1000,  AccountDetailType.GIFT);
+        detail.create(user.getId(), 100000,  AccountDetailType.GIFT);
         Account account = accountService.giving(detail);
         return Result.success(new AccountResp(account));
     }

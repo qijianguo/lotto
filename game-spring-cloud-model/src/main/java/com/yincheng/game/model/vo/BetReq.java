@@ -14,13 +14,13 @@ public class BetReq extends Page {
 
     @ApiModelProperty(value = "游戏ID", required = true, dataType = "Integer")
     private Integer gameId;
-    @ApiModelProperty(value = "期号", required = true, dataType = "Integer")
+    @ApiModelProperty(value = "期号", dataType = "Integer")
     private Long period;
-    @ApiModelProperty(value = "标的,例如A，B，C，SUM", required = true, dataType = "String")
+    @ApiModelProperty(value = "标的,例如A，B，C，SUM", dataType = "String")
     private String target;
 
     public boolean validate() {
-        return gameId != null && period != null && target != null;
+        return gameId != null;
     }
 
 }

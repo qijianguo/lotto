@@ -28,7 +28,7 @@ public class GameFlow {
     private String name;
 
     /** 展示图片 */
-    private String image;
+    private String cover;
 
     /** 描述 */
     private String description;

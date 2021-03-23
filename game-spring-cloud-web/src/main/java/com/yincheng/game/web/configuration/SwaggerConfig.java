@@ -40,7 +40,7 @@ public class SwaggerConfig {
                 .globalResponseMessage(RequestMethod.POST, apiResponseCode())
                 .globalResponseMessage(RequestMethod.PUT, apiResponseCode())
                 .globalResponseMessage(RequestMethod.DELETE, apiResponseCode())
-                .ignoredParameterTypes(CurrentUser.class)
+                //.ignoredParameterTypes(CurrentUser.class)
                 .ignoredParameterTypes(User.class);
     }
 

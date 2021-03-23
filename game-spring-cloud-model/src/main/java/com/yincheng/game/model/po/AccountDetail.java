@@ -40,7 +40,7 @@ public class AccountDetail {
     /** 更新时间 */
     private Date updateTime;
 
-    public void setType(AccountDetailType speed) {
+    public void setDetailType(AccountDetailType speed) {
         this.type = speed.getType();
         this.confirm = speed.getDefConfirm();
         this.success = speed.getSuccess();

@@ -26,6 +26,8 @@ public enum EmBusinessError implements CommonError {
 
     REWARD_REPEATED_ERROR(30001, "Cannot get reward repeated."),
 
+    INVALID_FACEBOOK_CODE(30002, "Verify the code failed."),
+    INVALID_FACEBOOK_ACC_TOKEN(20003, "Verify the access token failed."),
     INVALID_PHONE_CODE(31000, "Invalid phone code！"),
 
 
