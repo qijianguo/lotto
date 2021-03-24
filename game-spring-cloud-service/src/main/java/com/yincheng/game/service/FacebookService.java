@@ -35,7 +35,7 @@ public class FacebookService {
     public static final String APP_SECRET = "4e6bf0c54658a3cefffa92e8f1751502";
     /** 用户信息字段 */
     //public static final String USER_INFO_FIELDS = "id,cover,email,gender,name,languages,timezone,third_party_id,updated_time,user_about_me,read_stream";
-    public static final String USER_INFO_FIELDS = "id,name,birthday,gender,hometown,email,devices";
+    public static final String USER_INFO_FIELDS = "id,first_name,last_name,middle_name,name,name_format,picture,short_name,email,gender,languages,about";
 
     public static String REDIRECT_URL = "http://gntina.iok.la/doLogin";
 
