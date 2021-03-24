@@ -42,7 +42,7 @@ public class LoginController {
         map.put("token", accessToken);
         map.put("debugTokenResp", debugToken);
         map.put("userInfoByInputToken", userInfoByInputToken);
-        return Result.success();
+        return Result.success(map);
     }
 
     @ApiOperation(value = "登录/注册")
