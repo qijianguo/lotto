@@ -17,22 +17,23 @@ public enum EmBusinessError implements CommonError {
     PARAMETER_ERROR(11000, "Params error."),
 
     // USER
-    USER_NO_PERMISSION(11001, "No permission."),
-    USER_TOKEN_EXPIRED(20001, "Please login."),
-    USER_TOKEN_INVALID(20002, "Invalid token"),
-
     /* 20000开头是用户模块错误码 */
-    ACCOUNT_INSUFFICIENT_BALANCE(30000, "Your account balance is insufficient."),
+    USER_NO_PERMISSION(20000, "No permission."),
+    USER_TOKEN_EXPIRED(20001, "Please login."),
 
+    // ACCOUNT
+    ACCOUNT_INSUFFICIENT_BALANCE(30000, "Your account balance is insufficient."),
     REWARD_REPEATED_ERROR(30001, "Cannot get reward repeated."),
+
 
     INVALID_FACEBOOK_CODE(30002, "Verify the code failed."),
     INVALID_FACEBOOK_ACC_TOKEN(20003, "Verify the access token failed."),
-    INVALID_PHONE_CODE(31000, "Invalid phone code！"),
+    INVALID_PHONE_CODE(31000, "Invalid phone code."),
 
 
-    GAME_CONFIG_NOT_FOUND(400001, "Game config not found")
+    GAME_CONFIG_NOT_FOUND(40001, "Lotto config not found."),
 
+    PERIOD_DRAWN(40002, "Lotto period already been drawn."),
 
     ;
 

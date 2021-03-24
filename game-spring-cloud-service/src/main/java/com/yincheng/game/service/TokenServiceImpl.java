@@ -81,7 +81,7 @@ public class TokenServiceImpl implements TokenService {
             user.setId(userId);
             return user;
         } catch (Exception e) {
-            throw new BusinessException(EmBusinessError.USER_TOKEN_INVALID);
+            throw new BusinessException(EmBusinessError.USER_TOKEN_EXPIRED);
         }
     }
 }

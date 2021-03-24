@@ -7,6 +7,7 @@ import com.yincheng.game.model.po.GameFlow;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.service.GameFlowService;
 import com.yincheng.game.service.TaskService;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -50,30 +51,26 @@ public class GameJob extends QuartzJobBean {
         run(gameFlow, context.getNextFireTime());
     }
 
+    /**
+     * 执行任务
+     */
     public void run(GameFlow gameFlow, Date nextExecuteTime) {
+        logger.info("开始执行任务{}", gameFlow.getName());
+        GameJobContext context;
         Task task = new Task();
         task.setGameId(gameFlow.getId());
         task.setStartTime(new Date());
         task.setEndTime(nextExecuteTime);
         task.setPeriod(gameFlow.getTempPeriod());
-        taskService.save(task);
-        run(gameFlow, task, nextExecuteTime);
-    }
-
-    /**
-     * 执行任务
-     */
-    public void run(GameFlow gameFlow, Task task, Date nextExecuteTime) {
-        GameJobContext context;
         try {
+            taskService.save(task);
             context = GameJobContext.create(gameFlow.getId(), task);
             GameContextHolder.set(context);
             contextMap.put(task.getId(), context);
-//            logger.info("开始执行任务{}", gameFlow.getName());
             game.run(gameFlow, context);
-//            logger.info("执行任务{}完毕，下次执行时间：{}", gameFlow.getName(), nextExecuteTime == null ? null : DateFormatUtils.format(nextExecuteTime, "yyyy-MM-dd HH:mm:ss"));
+            logger.info("执行任务{}完毕，下次执行时间：{}", gameFlow.getName(), nextExecuteTime == null ? null : DateFormatUtils.format(nextExecuteTime, "yyyy-MM-dd HH:mm:ss"));
         } catch (Exception e) {
-//            logger.error("执行任务{}出错", gameFlow.getName(), e);
+            logger.error("执行任务{}出错", gameFlow.getName(), e);
         } finally {
             gameFlow.setNextPeriod(task.getPeriod());
             gameFlow.setTempPeriod(task.getPeriod() + 1);
@@ -82,4 +79,5 @@ public class GameJob extends QuartzJobBean {
             GameContextHolder.remove();
         }
     }
+
 }

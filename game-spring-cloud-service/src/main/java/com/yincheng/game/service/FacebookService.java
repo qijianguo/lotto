@@ -82,36 +82,23 @@ public class FacebookService {
 
     /**
      * 调用图谱API，验证用户是否是来自我的应用
+     *  https://graph.facebook.com/debug_token?access_token={Your AppId}%7C{Your AppSecret}&input_token=XXX
      * @param accessToken
      */
     public boolean verifyAccessToken(String accessToken, String unionId) {
-        String appToken = getAccessToken();
-        // https://graph.facebook.com/debug_token?access_token=
-        // https://graph.facebook.com/debug_token?access_token={Your AppId}%7C{Your AppSecret}&input_token=XXX
-        String url = String.format("%s?access_token=%s&input_token=%s",
-                DEBUG_TOKEN, APP_ID + "%7C" + APP_SECRET, accessToken);
-        try {
-            String result = HttpUtils.getInstance().executeGetWithSSL(url);
-            logger.info("verifyAccessToken:{}", result);
-            FacebookDebugTokenResp resp = JSON.parseObject(result, FacebookDebugTokenResp.class);
-            FacebookDebugTokenResp.DataBean data = resp.getData();
-            if (data.is_valid() && Objects.equals(unionId, data.getUser_id())) {
-                return true;
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+        FacebookDebugTokenResp resp = verifyAccessToken(accessToken);
+        if (resp != null && resp.getData() != null && Objects.equals(resp.getData().getUser_id(), unionId)) {
+            return true;
         }
-        throw new BusinessException(EmBusinessError.INVALID_FACEBOOK_ACC_TOKEN);
+        return false;
     }
 
     /**
      * 调用图谱API，验证用户是否是来自我的应用
+     * https://graph.facebook.com/debug_token?access_token={Your AppId}%7C{Your AppSecret}&input_token=XXX
      * @param accessToken
      */
     public FacebookDebugTokenResp verifyAccessToken(String accessToken) {
-        String appToken = getAccessToken();
-        // https://graph.facebook.com/debug_token?access_token=
-        // https://graph.facebook.com/debug_token?access_token={Your AppId}%7C{Your AppSecret}&input_token=XXX
         String url = String.format("%s?access_token=%s&input_token=%s",
                 DEBUG_TOKEN, APP_ID + "%7C" + APP_SECRET, accessToken);
         try {
@@ -141,13 +128,13 @@ public class FacebookService {
         try {
             result = HttpUtils.getInstance().executeGetWithSSL(url);
             logger.info("getAppToken:{}", result);
+            // FIXME 获取token
+
+            return result;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        // FIXME获取token
-
-
-        return appToken;
+        throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
     }
 
 }

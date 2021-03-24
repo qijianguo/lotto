@@ -18,7 +18,7 @@ public class LoginFacebookReq {
     private String avatar;
 
     public boolean validate() {
-        return accessToken != null && fbUid != null && nickName != null && avatar != null;
+        return accessToken != null;
     }
 
 }

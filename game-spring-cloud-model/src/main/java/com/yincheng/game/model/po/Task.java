@@ -43,4 +43,12 @@ public class Task {
         return task;
     }
 
+    public void setPeriodResult(String result, Integer sum) {
+        this.result = result;
+        this.sum = sum;
+        this.updateTime = new Date();
+        this.status = 1;
+
+    }
+
 }

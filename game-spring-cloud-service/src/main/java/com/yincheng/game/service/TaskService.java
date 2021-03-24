@@ -12,7 +12,7 @@ public interface TaskService extends IService<Task> {
 
     Task getByGamePeriod(int gameId, long period);
 
-    void updateResult(Task task);
+    void updateResult(String gameType, Task task);
 
     IPage<Task> getPeriodPage(PeriodReq req);
 

@@ -67,60 +67,24 @@ public class Game {
         if (!CollectionUtils.isEmpty(listeners)) {
             listeners.forEach(listener -> listener.beforeStart(context));
         }
-        Long prevPeriod = Optional.ofNullable(gameFlow.getPeriod()).orElse(-1L);
-        Task prevTask = null;
+        Long prevPeriod = Optional.ofNullable(gameFlow.getNextPeriod()).orElse(-1L);
+        Task period = null;
         // 计算上一期的结果
         if (prevPeriod != -1) {
-            prevTask = taskService.getByGamePeriod(gameFlow.getId(), gameFlow.getNextPeriod());
-            if (prevTask != null && prevTask.getStatus() == 0) {
-                setResult(gameFlow.getType(), prevTask);
-                taskService.updateResult(prevTask);
-                gameFlow.setResult(prevTask.getResult());
+            period = taskService.getByGamePeriod(gameFlow.getId(), prevPeriod);
+            if (period != null && period.getStatus() == 0) {
+                taskService.updateResult(gameFlow.getType(), period);
+                gameFlow.setResult(period.getResult());
                 gameFlow.setPeriod(gameFlow.getNextPeriod());
             }
         }
         // 通过ws发送给客户端
-        TaskWsResp resp = new TaskWsResp(prevTask, context.getNextTask());
+        TaskWsResp resp = new TaskWsResp(period, context.getNextTask());
         webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
-        if (prevTask != null) {
+        if (period != null) {
             // TODO 发放上一期奖励
-            betHistoryService.settle(prevTask, true);
+            betHistoryService.settle(period, true);
         }
-    }
-
-    private void setResult(String gameType, Task task) {
-        GameType match = GameType.match(gameType);
-        if (match == null) {
-            throw new IllegalArgumentException("game type not found, errGameType = " + gameType);
-        }
-        int length = -1;
-        // 给出结果
-        switch (match) {
-            case _3D:
-                length = 3;
-                break;
-            case _4D:
-                length = 4;
-                break;
-            case _5D:
-                length = 5;
-                break;
-            default:
-        }
-        List<Integer> nums = new ArrayList<>(length);
-        for (int i = 0; i < length; i++) {
-            nums.add(getSingleNumber());
-        }
-
-        task.setResult(StringUtils.join(nums, ","));
-        task.setSum(nums.stream().mapToInt(Integer::intValue).sum());
-        task.setStatus(1);
-        task.setUpdateTime(new Date());
-    }
-
-    private Integer getSingleNumber() {
-        // 随机生成4位数
-        return RandomUtils.nextInt(0, 100) % 10;
     }
 
 }

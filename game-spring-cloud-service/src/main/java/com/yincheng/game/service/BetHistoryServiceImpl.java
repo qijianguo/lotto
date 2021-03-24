@@ -186,7 +186,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         Task period = taskService.getByGamePeriod(req.getGameId(), req.getPeriod());
         Date now = new Date();
         if (period == null || period.getStatus() == 1 || now.before(period.getStartTime()) || now.after(period.getEndTime())) {
-            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+            throw new BusinessException(EmBusinessError.PERIOD_DRAWN);
         }
         // 更新账户余额
         AccountDetail detail = new AccountDetail();
