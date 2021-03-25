@@ -27,6 +27,8 @@ public class PhoneLogin implements Login {
     @Autowired
     private TokenService tokenService;
 
+    public static final String TYPE = "PHONE";
+
     @Override
     public User execute(LoginReq req) {
         verify(req);
@@ -70,7 +72,25 @@ public class PhoneLogin implements Login {
 
     @Override
     public User register(String unionId, String nickName, String cover) {
-        return null;
+        List<UserAuth> userAuths = userAuthService.getUserAuths(TYPE, unionId);
+        // 查看是否已经注册过，没有的话注册一下
+        User user;
+        if (!CollectionUtils.isEmpty(userAuths)) {
+            // 已经注册过了
+            user = userService.getById(userAuths.get(0).getUserId());
+            user.setAuths(userAuths);
+            userService.updateById(user);
+        } else {
+            user = new User();
+            user.init(unionId, cover);
+            boolean save = userService.save(user);
+            if (save) {
+                UserAuth userAuth = new UserAuth(user.getId(), TYPE, unionId, "");
+                userAuthService.save(userAuth);
+                user.getAuths().add(userAuth);
+            }
+        }
+        return user;
     }
 
     @Override

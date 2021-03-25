@@ -2,6 +2,7 @@ package com.yincheng.game.service;
 
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
+import com.yincheng.game.common.util.RegexUtils;
 import com.yincheng.game.model.enums.LoginMode;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.vo.FacebookDebugTokenResp;
@@ -48,7 +49,12 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public User login(LoginPhoneReq req) {
-        return null;
+        if (!req.validate() && !RegexUtils.isMobile2(req.getPhone())) {
+            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+        }
+        User register = phoneLogin.register(req.getPhone(), RegexUtils.replaceWithStar(req.getPhone()), "http://1.jpg");
+        phoneLogin.updateToken(register);
+        return register;
     }
 
     @Override
@@ -57,7 +63,10 @@ public class LoginServiceImpl implements LoginService {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         // 验证AccessToken
-        facebookService.verifyAccessToken(req.getAccessToken(), req.getFbUid());
+        boolean verify = facebookService.verifyAccessToken(req.getAccessToken(), req.getFbUid());
+        if (!verify) {
+            throw new BusinessException(EmBusinessError.INVALID_FACEBOOK_ACC_TOKEN);
+        }
         User register = facebookLogin.register(req.getFbUid(), req.getNickName(), req.getAvatar());
         facebookLogin.updateToken(register);
         return register;

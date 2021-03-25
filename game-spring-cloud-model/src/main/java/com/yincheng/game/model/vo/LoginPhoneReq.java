@@ -17,5 +17,8 @@ public class LoginPhoneReq {
     @ApiModelProperty(value = "CODE", required = true, dataType = "String")
     private String code;
 
+    public boolean validate() {
+        return phone != null && code != null;
+    }
 
 }

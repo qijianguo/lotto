@@ -11,6 +11,7 @@ import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.model.po.*;
 import com.yincheng.game.model.vo.BetAddReq;
 import com.yincheng.game.model.vo.BetReq;
+import com.yincheng.game.model.vo.RewardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -65,7 +66,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             Account account = settle(bet, result);
             // TODO 通知开奖结果， 放到消息队列
             if (notice && account != null) {
-                webSocketService.send("userid", Destination.account(), account);
+                webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
             }
         });
 
@@ -153,6 +154,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             AccountDetail detail = new AccountDetail();
             detail.create(betHistory.getUserId(), reward, AccountDetailType.REWARD);
             Account account = accountService.betReward(detail);
+            account.setReward(reward);
             return account;
         }
         return null;

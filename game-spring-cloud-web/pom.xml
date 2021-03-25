@@ -19,10 +19,6 @@
             <groupId>com.yincheng.game</groupId>
             <artifactId>game-spring-cloud-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-        </dependency>
 
     </dependencies>
 

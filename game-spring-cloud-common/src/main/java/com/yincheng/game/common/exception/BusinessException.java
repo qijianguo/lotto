@@ -33,7 +33,7 @@ public class BusinessException extends RuntimeException implements CommonError {
     public BusinessException(CommonError commonError, String errorMsg) {
         super();
         this.commonError = commonError;
-        this.commonError.setErrorMsg(errorMsg);
+        this.commonError = setErrorMsg(errorMsg);
     }
 
     @Override

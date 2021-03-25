@@ -1,10 +1,8 @@
 package com.yincheng.game.model;
 
 import com.yincheng.game.common.exception.EmBusinessError;
-import com.yincheng.game.common.exception.ExceptionEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiResponse;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -34,11 +32,11 @@ public class Result<T> {
     }
 
     public static Result success() {
-        return new Result().create("ok", ExceptionEnum._200.getCode(), ExceptionEnum._200.getMessage(), null);
+        return new Result().create("ok", 200, "success", null);
     }
 
     public static Result success(Object result) {
-        return new Result().create("ok", ExceptionEnum._200.getCode(), ExceptionEnum._200.getMessage(), result);
+        return new Result().create("ok", 200, "success", result);
     }
 
     public static Result success(Integer code, String message, Object result) {

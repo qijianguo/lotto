@@ -50,21 +50,8 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
             // 如果token不为空，说明用户已登录， username = id
             // 如果token为空，则用户未登录，username = sessionId
             if (!StringUtils.isEmpty(token)) {
-                //String username = tokenService.verify(token);
-                //accessor.setUser(() -> username);
-                Principal principal = new Principal() {
-                    @Override
-                    public String getName() {
-                        String username = userTokenMap.get(token);
-                        return username;
-                    }
-                };
-                accessor.setUser(principal);
-            } else {
-                String session = getSession(message);
-                if (!StringUtils.isEmpty(session)) {
-                    accessor.setUser(() -> session);
-                }
+                String username = tokenService.verify(token);
+                accessor.setUser(() -> username);
             }
         }
         return message;

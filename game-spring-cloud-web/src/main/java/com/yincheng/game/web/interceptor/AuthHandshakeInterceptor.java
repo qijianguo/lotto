@@ -1,7 +1,9 @@
 package com.yincheng.game.web.interceptor;
 
+import com.yincheng.game.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -19,6 +21,9 @@ import java.util.Map;
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthHandshakeInterceptor.class);
+
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * 在握手之前执行该方法, 继续握手返回true, 中断握手返回false.
@@ -40,7 +45,8 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
             if (!validate()) {
                 return false;
             }
-            //attributes.put("token", token);
+            String username = tokenService.verify(token);
+            attributes.put("token", token);
         }
         return true;
     }

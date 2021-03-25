@@ -1,5 +1,8 @@
 package com.yincheng.game.web.configuration;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -21,8 +25,10 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,23 +47,24 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        // 移除其他转换器
-        converters.clear();
-
-//        // Long类型转换为String，防止JS丢失精度
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        SimpleModule simpleModule = new SimpleModule();
-//        simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
-//        simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
-//        objectMapper.registerModule(simpleModule);
-//        converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
-
-        // 可读取text/xml和application/xml媒体类型请求，响应信息的媒体类型为text/xml或application/xml
-        converters.add(new MarshallingHttpMessageConverter());
-
-//        Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.xml();
-//        builder.indentOutput(true);
-//        converters.add(new MappingJackson2XmlHttpMessageConverter(builder.build()));
+        //1.需要定义一个convert转换消息的对象;
+        FastJsonHttpMessageConverter fastJsonHttpMessageConverter = new FastJsonHttpMessageConverter();
+        //2.添加fastJson的配置信息，比如：是否要格式化返回的json数据;
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat,
+                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteNullStringAsEmpty,
+                SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.WriteNullListAsEmpty,
+                SerializerFeature.WriteDateUseDateFormat);
+        //3处理中文乱码问题
+        List<MediaType> fastMediaTypes = new ArrayList<>();
+        fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
+        //4.在convert中添加配置信息.
+        fastJsonHttpMessageConverter.setSupportedMediaTypes(fastMediaTypes);
+        fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);
+        //5.将convert添加到converters当中.
+        converters.add(fastJsonHttpMessageConverter);
     }
 
     @Override
@@ -91,5 +98,30 @@ public class WebConfiguration implements WebMvcConfigurer {
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setMaxAge(3600L);
         return corsConfiguration;
+    }
+
+    /**
+     * 添加静态资源--过滤swagger-api (开源的在线API文档)
+     * @author fxbin
+     * @param registry
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        //过滤swagger
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+        registry.addResourceHandler("/swagger-resources/**")
+                .addResourceLocations("classpath:/META-INF/resources/swagger-resources/");
+
+        registry.addResourceHandler("/swagger/**")
+                .addResourceLocations("classpath:/META-INF/resources/swagger*");
+
+        registry.addResourceHandler("/v2/api-docs/**")
+                .addResourceLocations("classpath:/META-INF/resources/v2/api-docs/");
+
     }
 }

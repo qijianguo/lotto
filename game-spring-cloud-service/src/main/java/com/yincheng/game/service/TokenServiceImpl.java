@@ -71,15 +71,15 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public User verify(String token) {
+    public String verify(String token) {
         Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
         JWTVerifier verifier = JWT.require(algorithm).build();
         try {
             DecodedJWT jwt = verifier.verify(token);
             int userId = jwt.getClaim("userId").asInt();
-            User user = new User();
-            user.setId(userId);
-            return user;
+            /*User user = new User();
+            user.setId(userId);*/
+            return String.valueOf(userId);
         } catch (Exception e) {
             throw new BusinessException(EmBusinessError.USER_TOKEN_EXPIRED);
         }

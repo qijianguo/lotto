@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.common.util.HttpUtils;
+import com.yincheng.game.model.vo.FacebookAccessTokenResp;
 import com.yincheng.game.model.vo.FacebookDebugTokenResp;
 import com.yincheng.game.model.vo.FacebookUserResp;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.util.Objects;
 
 /**
  * @author qijianguo
+ * https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow
  */
 @Component
 public class FacebookService {
@@ -38,32 +40,6 @@ public class FacebookService {
     public static final String USER_INFO_FIELDS = "id,first_name,last_name,middle_name,name,name_format,picture,short_name,email,gender,languages,about";
 
     public static String REDIRECT_URL = "http://gntina.iok.la/doLogin";
-
-    public String redirectUrl() {
-        return String.format("%s?client_id=%s&redirect_uri=%s", GET_CODE_URL, APP_ID, REDIRECT_URL);
-    }
-
-    public String getAccessToken(String code) {
-//        if (StringUtils.isEmpty(code)) {
-//            throw new BusinessException(EmBusinessError.INVALID_FACEBOOK_CODE);
-//        }
-//        Map<String, String> params = new HashMap<>(4);
-//        params.put("client_id", APP_ID);
-//        params.put("client_secret", APP_SECRET);
-//        params.put("redirect_uri", REDIRECT_URL);
-//        params.put("code", code);
-//        String result;
-//        try {
-//            result = HttpUtils.getInstance().executeGetWithSSL(GET_ACCESS_TOKEN_URL, params);
-//            logger.info("getUserInfo:{}", result);
-//        } catch (Exception e) {
-//            logger.error(e.getMessage(), e);
-//            throw new BusinessException(EmBusinessError.INVALID_FACEBOOK_CODE);
-//        }
-//        if (result != null) {
-//        }
-        return "";
-    }
 
     public FacebookUserResp getUserInfo(String accessToken) {
         String url = String.format("%s?access_token=%s&fields=%s",
@@ -112,24 +88,33 @@ public class FacebookService {
         throw new BusinessException(EmBusinessError.INVALID_FACEBOOK_ACC_TOKEN);
     }
 
+    public String redirectUrl() {
+        // state 防止跨站请求伪造，会在重定向 URI 中原样传回
+        String state = "abc123456";
+        return String.format("%s?client_id=%s&redirect_uri=%s&state=%s", GET_CODE_URL, APP_ID, REDIRECT_URL, state);
+    }
+
     /**
-     * 获取应用口令（用来验证口令是否来自我的应用）
+     * 用代码交换访问口令:（用来验证口令是否来自我的应用）
+     * @link: https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow
+     *
+     * eg: https://graph.facebook.com/v10.0/oauth/access_token?client_id={app-id}&redirect_uri={redirect-uri}&client_secret={app-secret}&code={code-parameter}
      * @return
      */
-    public String getAccessToken(){
+    public String getAccessToken(String code) {
         HashMap<String, String> params = new HashMap<>();
         params.put("client_id", APP_ID);
         params.put("client_secret", APP_SECRET);
         params.put("grant_type", "client_credentials");
         String appToken=null;
         String result;
-        String url = String.format("%s?client_id=%s&client_secret=%s",
-                GET_ACCESS_TOKEN_URL, APP_ID, APP_SECRET);
+        String url = String.format("%s?client_id=%s&client_secret=%s&redirect_uri=%s",
+                GET_ACCESS_TOKEN_URL, APP_ID, APP_SECRET, REDIRECT_URL);
         try {
             result = HttpUtils.getInstance().executeGetWithSSL(url);
             logger.info("getAppToken:{}", result);
             // FIXME 获取token
-
+            FacebookAccessTokenResp resp = JSON.parseObject(result, FacebookAccessTokenResp.class);
             return result;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

@@ -13,6 +13,6 @@ public interface TokenService {
 
     boolean verify(User user);
 
-    User verify(String token);
+    String verify(String token);
 
 }

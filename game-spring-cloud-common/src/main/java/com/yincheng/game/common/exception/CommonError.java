@@ -9,8 +9,16 @@ package com.yincheng.game.common.exception;
  */
 public interface CommonError {
 
+    /**
+     * 错误码
+     * @return
+     */
     int getErrorCode();
 
+    /**
+     * 错误信息
+     * @return
+     */
     String getErrorMsg();
 
     CommonError setErrorMsg(String errorMsg);

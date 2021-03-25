@@ -1,12 +1,9 @@
 package com.yincheng.game.web.configuration;
 
 import com.yincheng.game.web.interceptor.AuthChannelInterceptor;
-import com.yincheng.game.web.interceptor.AuthHandshakeInterceptor;
 import com.yincheng.game.web.interceptor.HttpWebSocketHandlerDecoratorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.yincheng.game.web.interceptor.PrincipalHandshakeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -23,6 +20,9 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 
+    @Autowired
+    private PrincipalHandshakeHandler principalHandshakeHandler;
+
     /**
      * 配置 WebSocket 进入点，及开启使用 SockJS，这些配置主要用配置连接端点，用于 WebSocket 连接
      *
@@ -32,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOrigins("*")
-                .addInterceptors(new AuthHandshakeInterceptor())
+                .setHandshakeHandler(principalHandshakeHandler)
                 .withSockJS();
     }
 
@@ -51,10 +51,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setUserDestinationPrefix("/user");
     }
 
-//    @Override
-//    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-//        registry.addDecoratorFactory(new HttpWebSocketHandlerDecoratorFactory());
-//    }
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.addDecoratorFactory(new HttpWebSocketHandlerDecoratorFactory());
+    }
 
     @Autowired
     private AuthChannelInterceptor authChannelInterceptor;
