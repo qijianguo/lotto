@@ -12,6 +12,6 @@ public class Constants {
 
     public static final int TOKEN_EXPIRES_HOUR = 24 * 5;
 
-    public static final String TOKEN = "token";
+    public static final String TOKEN = "Authorization";
 
 }

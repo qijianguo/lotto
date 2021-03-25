@@ -122,6 +122,5 @@ public class WebConfiguration implements WebMvcConfigurer {
 
         registry.addResourceHandler("/v2/api-docs/**")
                 .addResourceLocations("classpath:/META-INF/resources/v2/api-docs/");
-
     }
 }

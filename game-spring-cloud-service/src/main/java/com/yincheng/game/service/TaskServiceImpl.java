@@ -39,7 +39,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public IPage<Task> getPeriodPage(PeriodReq req) {
         return lambdaQuery()
-                .eq(Task::getGameId, req.getGameId())
+                .eq(req.getGameId() != null, Task::getGameId, req.getGameId())
+                .eq(req.getStatus() != null, Task::getStatus, req.getStatus())
                 .page(req);
     }
 

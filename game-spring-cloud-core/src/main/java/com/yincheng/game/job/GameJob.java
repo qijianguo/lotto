@@ -5,6 +5,7 @@ import com.yincheng.game.context.GameContext;
 import com.yincheng.game.context.GameContextHolder;
 import com.yincheng.game.model.po.GameFlow;
 import com.yincheng.game.model.po.Task;
+import com.yincheng.game.model.vo.PeriodReq;
 import com.yincheng.game.service.GameFlowService;
 import com.yincheng.game.service.TaskService;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -17,9 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,6 +74,15 @@ public class GameJob extends QuartzJobBean {
             logger.info("执行任务{}完毕，下次执行时间：{}", gameFlow.getName(), nextExecuteTime == null ? null : DateFormatUtils.format(nextExecuteTime, "yyyy-MM-dd HH:mm:ss"));
         } catch (Exception e) {
             logger.error("执行任务{}出错", gameFlow.getName(), e);
+            PeriodReq req = new PeriodReq();
+            req.setGameId(gameFlow.getId());
+            req.setStatus(0);
+            req.setDesc("period");
+            req.setSize(1);
+            List<Task> records = taskService.getPeriod(req);
+            if (!CollectionUtils.isEmpty(records)) {
+                task = records.get(0);
+            }
         } finally {
             gameFlow.setNextPeriod(task.getPeriod());
             gameFlow.setTempPeriod(task.getPeriod() + 1);

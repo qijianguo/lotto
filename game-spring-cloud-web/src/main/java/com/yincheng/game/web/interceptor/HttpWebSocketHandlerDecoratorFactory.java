@@ -1,5 +1,6 @@
 package com.yincheng.game.web.interceptor;
 
+import com.yincheng.game.model.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -59,8 +60,8 @@ public class HttpWebSocketHandlerDecoratorFactory implements WebSocketHandlerDec
     }
     private String getToken(Message message){
         Map headers = (Map) message.getHeaders().get("nativeHeaders");
-        if (headers !=null && headers.containsKey("token")){
-            List token = (List)headers.get("token");
+        if (headers !=null && headers.containsKey(Constants.TOKEN)){
+            List token = (List)headers.get(Constants.TOKEN);
             return String.valueOf(token.get(0));
         }
         return null;

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -17,7 +18,7 @@ import java.util.Date;
 @TableName("t_user_auth")
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAuth {
+public class UserAuth implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private Integer id;

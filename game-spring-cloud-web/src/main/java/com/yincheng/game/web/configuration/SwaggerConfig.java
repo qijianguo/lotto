@@ -16,6 +16,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class SwaggerConfig {
                 .globalResponseMessage(RequestMethod.PUT, apiResponseCode())
                 .globalResponseMessage(RequestMethod.DELETE, apiResponseCode())
                 //.ignoredParameterTypes(CurrentUser.class)
-                .ignoredParameterTypes(User.class);
+                ;
     }
 
     private ApiInfo apiInfo() {

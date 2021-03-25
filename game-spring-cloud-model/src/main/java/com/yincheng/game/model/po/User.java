@@ -8,8 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * @author qijianguo
@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_user")
-public class User {
+public class User implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
     /** 昵称 */
@@ -31,17 +31,12 @@ public class User {
     private String avatar;
     /** 状态 */
     private Integer status;
-    private String role;
+    /** 角色 待废弃 */
+    private String roles;
     /** 注册时间 */
     private Date createTime;
     /** 最近时间 */
     private Date updateTime;
-    /** 邀请码 */
-    @TableField(exist = false)
-    private String uid;
-    /** 设备信息 */
-    @TableField(exist = false)
-    private String device;
     /** 登录令牌 */
     @TableField(exist = false)
     private String token;

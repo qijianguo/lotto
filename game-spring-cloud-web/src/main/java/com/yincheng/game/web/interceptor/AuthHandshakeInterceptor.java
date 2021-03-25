@@ -1,5 +1,6 @@
 package com.yincheng.game.web.interceptor;
 
+import com.yincheng.game.model.Constants;
 import com.yincheng.game.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
@@ -21,9 +21,6 @@ import java.util.Map;
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthHandshakeInterceptor.class);
-
-    @Autowired
-    private TokenService tokenService;
 
     /**
      * 在握手之前执行该方法, 继续握手返回true, 中断握手返回false.
@@ -41,12 +38,11 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
             HttpSession session = ((ServletServerHttpRequest) request).getServletRequest().getSession();
             System.out.println("WEBSOCKET:===========" + session.getId());
             // TODO 校验请求参数合法性
-            String token = ((ServletServerHttpRequest) request).getServletRequest().getParameter("token");
+            String token = ((ServletServerHttpRequest) request).getServletRequest().getParameter(Constants.TOKEN);
             if (!validate()) {
                 return false;
             }
-            String username = tokenService.verify(token);
-            attributes.put("token", token);
+            attributes.put(Constants.TOKEN, token);
         }
         return true;
     }

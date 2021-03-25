@@ -12,15 +12,15 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * 国际化默认语言配置及编码方式修改
- * @author fxbin
- * @version v1.1
- * @since 2018/8/23 14:38
- * @see org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
- * @see org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
- */
-@Configuration
+///**
+// * 国际化默认语言配置及编码方式修改
+// * @author fxbin
+// * @version v1.1
+// * @since 2018/8/23 14:38
+// * @see org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
+// * @see org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
+// */
+//@Configuration
 public class I18nConfig implements WebMvcConfigurer {
 
     @Bean

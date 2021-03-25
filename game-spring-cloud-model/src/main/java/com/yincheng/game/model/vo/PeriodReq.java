@@ -14,6 +14,8 @@ public class PeriodReq extends Page {
 
     @ApiModelProperty(value = "游戏ID", required = true, dataType = "Integer")
     private Integer gameId;
+    @ApiModelProperty(value = "状态", required = true, dataType = "Integer")
+    private Integer status;
 
     public boolean validate() {
         long size = getSize();
