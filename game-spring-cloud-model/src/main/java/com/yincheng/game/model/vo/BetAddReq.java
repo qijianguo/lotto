@@ -1,11 +1,13 @@
 package com.yincheng.game.model.vo;
 
+import com.yincheng.game.model.enums.Bet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author qijianguo
@@ -31,18 +33,29 @@ public class BetAddReq {
 
     public boolean validate() {
         boolean base = gameId != null && period != null && target != null && credit != null && credit >= 2000;
-        boolean bet = false;
+        AtomicBoolean bet = new AtomicBoolean(true);
         // 数字和其他类型是二选一
         if (CollectionUtils.isEmpty(betNums)) {
             if (!CollectionUtils.isEmpty(betHloe) && credit % betHloe.size() == 0) {
-                bet = true;
+                betHloe.forEach(mode -> {
+                    if (!Bet.mode().containsKey(mode.toUpperCase())) {
+                        bet.set(false);
+                        return;
+                    }
+                });
             }
         } else {
             if (credit % betNums.size() == 0 && CollectionUtils.isEmpty(betHloe)) {
-                bet = isNumBet = true;
+                betNums.forEach(num -> {
+                    if (num < 0 || num > 9) {
+                        bet.set(false);
+                        return;
+                    }
+                });
+                bet.set(isNumBet = true);
             }
         }
-        return base && bet;
+        return base && bet.get();
     }
 
 

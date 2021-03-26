@@ -48,6 +48,7 @@ public class ExceptionHandlerAdvice {
         if (apiRequestParams != null) {
             log.error("request params：{}, error message：{}, stack: {}", apiRequestParams, e.getMessage(), e);
         }*/
+        log.error(e.getMessage(), e);
         return Result.fail(EmBusinessError.UNKNOW_ERROR.getErrorCode(), EmBusinessError.UNKNOW_ERROR.getErrorMsg());
     }
 

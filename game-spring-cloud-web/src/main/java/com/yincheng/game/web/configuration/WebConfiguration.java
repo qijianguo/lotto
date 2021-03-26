@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
@@ -54,17 +55,26 @@ public class WebConfiguration implements WebMvcConfigurer {
         fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat,
                 SerializerFeature.WriteMapNullValue,
                 SerializerFeature.WriteNullStringAsEmpty,
-                SerializerFeature.DisableCircularReferenceDetect,
+                SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullListAsEmpty,
-                SerializerFeature.WriteDateUseDateFormat);
+                SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteDateUseDateFormat,
+                SerializerFeature.DisableCircularReferenceDetect);
         //3处理中文乱码问题
         List<MediaType> fastMediaTypes = new ArrayList<>();
         fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
+        fastMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
+        fastMediaTypes.add(MediaType.TEXT_HTML);
+        fastMediaTypes.add(MediaType.TEXT_PLAIN);
         //4.在convert中添加配置信息.
         fastJsonHttpMessageConverter.setSupportedMediaTypes(fastMediaTypes);
         fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);
         //5.将convert添加到converters当中.
         converters.add(fastJsonHttpMessageConverter);
+        MappingJackson2HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
+        converters.add(stringConverter);
+        converters.add(jackson2HttpMessageConverter);
     }
 
     @Override

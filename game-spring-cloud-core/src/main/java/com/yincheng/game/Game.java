@@ -2,15 +2,12 @@ package com.yincheng.game;
 
 import com.yincheng.game.job.GameJobManager;
 import com.yincheng.game.model.enums.Destination;
-import com.yincheng.game.model.enums.GameType;
 import com.yincheng.game.service.*;
 import com.yincheng.game.job.GameJobContext;
 import com.yincheng.game.listener.GameListener;
 import com.yincheng.game.model.po.GameFlow;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.TaskWsResp;
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +79,7 @@ public class Game {
         TaskWsResp resp = new TaskWsResp(period, context.getNextTask());
         webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
         if (period != null) {
-            // TODO 发放上一期奖励
-            betHistoryService.settle(period, true);
+            betHistoryService.settle(gameFlow.getName(), period, true);
         }
     }
 

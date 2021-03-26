@@ -9,6 +9,7 @@ import com.yincheng.game.model.vo.PeriodReq;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return lambdaQuery()
                 .eq(req.getGameId() != null, Task::getGameId, req.getGameId())
                 .eq(req.getStatus() != null, Task::getStatus, req.getStatus())
+                .lt(req.getBeforeDate() != null, Task::getCreateTime, req.getBeforeDate())
+                .gt(req.getAfterDate() != null, Task::getCreateTime, req.getAfterDate())
                 .page(req);
     }
 
@@ -48,6 +51,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public List<Task> getPeriod(PeriodReq req) {
         IPage<Task> periodPage = getPeriodPage(req);
         return periodPage.getRecords();
+    }
+
+    @Override
+    public Task getMaxPeriod(PeriodReq req) {
+        req.setSize(1);
+        req.setSearchCount(false);
+        IPage<Task> page = lambdaQuery().eq(Task::getGameId, req.getGameId())
+                .eq(Task::getStatus, req.getStatus())
+                .orderByDesc(Task::getPeriod)
+                .page(req);
+        List<Task> records = page.getRecords();
+        if (!CollectionUtils.isEmpty(records)) {
+            return records.get(0);
+        }
+        return null;
     }
 
     private List<Integer> getNums(String gameType) {

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +59,11 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         // 根据token查询用户信息
         String token = request.getHeader(Constants.TOKEN);
         User user = tokenService.verify(token);
-        List<String> strRoles = Arrays.stream(user.getRoles().split(",")).map(String::toString).collect(Collectors.toList());
+        if (user.getRoles() == null) {
+            throw new BusinessException(EmBusinessError.USER_TOKEN_EXPIRED);
+        }
+        String[] split = user.getRoles().split(",");
+        List<String> strRoles = Arrays.asList(split);
         boolean success = false;
         if (!CollectionUtils.isEmpty(strRoles)) {
             for (String strRole : strRoles) {
@@ -74,6 +79,5 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         }
         throw new BusinessException(EmBusinessError.USER_TOKEN_EXPIRED);
     }
-
 
 }

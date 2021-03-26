@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
+import com.yincheng.game.common.util.ThreadPoolUtils;
 import com.yincheng.game.dao.mapper.BetHistoryMapper;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.enums.Bet;
@@ -11,7 +12,10 @@ import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.model.po.*;
 import com.yincheng.game.model.vo.BetAddReq;
 import com.yincheng.game.model.vo.BetReq;
+import com.yincheng.game.model.vo.NotificationReq;
 import com.yincheng.game.model.vo.RewardResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -28,6 +32,8 @@ import java.util.stream.Collectors;
 @Service
 public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHistory> implements BetHistoryService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BetHistoryServiceImpl.class);
+
     @Autowired
     private TaskService taskService;
     @Autowired
@@ -38,6 +44,8 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     private GameConfigService gameConfigService;
     @Autowired
     private WebSocketService webSocketService;
+    @Autowired
+    private NotificationService notificationService;
 
     private static final Double MIDDLE = 4.5;
 
@@ -47,28 +55,30 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
 
     @Override
     public void settle(Task task) {
-        settle(task, false);
+        settle(null, task, false);
     }
 
     @Override
-    public void settle(Task task, boolean notice) {
+    public void settle(String gameName, Task task, boolean notice) {
+        if (notice && StringUtils.isEmpty(gameName)) {
+            throw new IllegalArgumentException("gameName mast be null or empty.");
+        }
         List<Integer> result = Arrays.stream(task.getResult().split(",")).map(Integer::new).collect(Collectors.toList());
         List<BetHistory> list = lambdaQuery().eq(BetHistory::getGameId, task.getGameId())
                 .eq(BetHistory::getPeriod, task.getPeriod())
                 .eq(BetHistory::getStatus, 0)
                 .list();
-
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
         // 多线程执行
-        list.forEach(bet -> {
+        list.forEach(bet -> ThreadPoolUtils.execute(() -> {
             Account account = settle(bet, result);
-            // TODO 通知开奖结果， 放到消息队列
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
+                notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
             }
-        });
+        }));
 
     }
 
@@ -126,9 +136,10 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                         }
                         break;
                     default:
+                        throw new IllegalArgumentException("game-mode not found: " + mode1);
                 }
-            } catch (Exception other) {
-                throw other;
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
         });
         int reward = 0;
@@ -207,7 +218,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     }
 
     @Override
-    public IPage<BetHistory> list(User user, BetReq req) {
+    public IPage list(User user, BetReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }

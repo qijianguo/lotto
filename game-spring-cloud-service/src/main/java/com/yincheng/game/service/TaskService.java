@@ -18,4 +18,6 @@ public interface TaskService extends IService<Task> {
 
     List<Task> getPeriod(PeriodReq req);
 
+    Task getMaxPeriod(PeriodReq req);
+
 }

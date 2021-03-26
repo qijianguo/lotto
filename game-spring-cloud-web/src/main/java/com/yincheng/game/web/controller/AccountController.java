@@ -52,6 +52,7 @@ public class AccountController {
 
     @ApiOperation(value = "申请提现", response = AccountResp.class)
     @PostMapping("/withdraw")
+    @Authentication
     public Result withdraw(@ApiIgnore @CurrentUser User user, AccountWithdrawReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
@@ -71,11 +72,12 @@ public class AccountController {
         IPage result = new Page();
         BeanUtils.copyProperties(page, result);
         result.setRecords(convertFromPo(records));
-        return Result.success(page);
+        return Result.success(result);
     }
 
     @ApiOperation(value = "首次注册赠送积分", response = AccountResp.class)
     @PostMapping("/reward")
+    @Authentication
     public Result giving(@ApiIgnore @CurrentUser User user) {
         AccountDetail detail = new AccountDetail();
         detail.create(user.getId(), 100000,  AccountDetailType.GIFT);

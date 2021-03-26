@@ -31,7 +31,7 @@ public class User implements Serializable {
     private String avatar;
     /** 状态 */
     private Integer status;
-    /** 角色 待废弃 */
+    /** 角色 */
     private String roles;
     /** 注册时间 */
     private Date createTime;
@@ -41,13 +41,14 @@ public class User implements Serializable {
     @TableField(exist = false)
     private String token;
     @TableField(exist = false)
-    private List<UserAuth> auths;
+    private List<UserAuth> auths = new ArrayList<>();
 
     public void init(String nickName, String avatar) {
         this.nickName = nickName;
         this.avatar = avatar;
         this.updateTime = this.createTime = new Date();
         this.status = 0;
+        this.roles = "USER";
         this.realName = "";
         this.gender = -1;
     }

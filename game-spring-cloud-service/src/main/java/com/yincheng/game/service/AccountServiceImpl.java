@@ -7,6 +7,7 @@ import com.yincheng.game.dao.mapper.AccountMapper;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.AccountDetail;
+import com.yincheng.game.model.vo.NotificationReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Autowired
     private AccountDetailService accountDetailService;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public Account get(Integer userId) {
@@ -51,7 +54,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     public Account withdraw(AccountDetail detail) {
         detail.setDetailType(AccountDetailType.WITHDRAW);
-        return decrease(detail);
+        Account account = decrease(detail);
+        notificationService.withdraw(new NotificationReq(account.getUserId(), "Withdraw Rp" + account.getReward()));
+        return account;
     }
 
     @Override

@@ -18,38 +18,40 @@ public interface BetHistoryService extends IService<BetHistory> {
 
     /**
      * 结算
-     * @param result
+     * @param result 开奖结果
      */
     void settle(Task result);
 
     /**
      * 结算
+     * @param gameType 游戏名称
      * @param result 开奖结果
      * @param notice 是否通知
      */
-    void settle(Task result, boolean notice);
+    void settle(String gameType, Task result, boolean notice);
 
     /**
      * 结算
      * @param betHistory 下注记录
      * @param result 开奖结果
-     * @return
+     * @return 用户账户信息
      */
     Account settle(BetHistory betHistory, List<Integer> result);
 
 
     /**
      * 下注
-     * @param user
-     * @param req
+     * @param user 下注用户
+     * @param req 下注参数
+     * @return 用户账户信息
      */
     Account bet(User user, BetAddReq req);
 
     /**
      * 条件查询用户的下注记录
-     * @param user
-     * @param req
-     * @return
+     * @param user 查询用户
+     * @param req 查询参数
+     * @return 分页
      */
     IPage<BetHistory> list(User user, BetReq req);
 

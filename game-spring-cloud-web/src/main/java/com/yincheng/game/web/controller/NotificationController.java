@@ -1,18 +1,15 @@
 package com.yincheng.game.web.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yincheng.game.common.util.TimeUtils;
 import com.yincheng.game.model.Result;
-import com.yincheng.game.model.anno.CurrentUser;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.po.AccountDetail;
-import com.yincheng.game.model.po.User;
-import com.yincheng.game.model.vo.AccountDetailReq;
+import com.yincheng.game.model.po.Notification;
 import com.yincheng.game.model.vo.NotificationResp;
 import com.yincheng.game.service.AccountDetailService;
+import com.yincheng.game.service.NotificationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,33 +27,36 @@ import java.util.List;
 public class NotificationController {
 
     @Autowired
-    private AccountDetailService accountDetailService;
+    private NotificationService notificationService;
 
     @ApiOperation(value = "提现通知", response = NotificationResp.class)
     @GetMapping("/withdraw")
-    public Result withdraw() {
-        List<AccountDetail> records = accountDetailService.top(AccountDetailType.WITHDRAW);
-        return Result.success(convertFromPo(records));
+    public Result withdraw(Integer size) {
+        List<Notification> withdraw = notificationService.getWithdraw(size);
+        List<NotificationResp> respList = new ArrayList<>();
+        withdraw.forEach(po -> {
+            NotificationResp resp = new NotificationResp();
+            resp.setTitle(po.getTitle());
+            resp.setTime(TimeUtils.convertDate2DateString(po.getTime()));
+            resp.setDescription(po.getDescription());
+            respList.add(resp);
+        });
+        return Result.success(respList);
     }
 
     @ApiOperation(value = "中奖通知", response = NotificationResp.class)
     @GetMapping("/reward")
-    public Result reward() {
-        List<AccountDetail> records = accountDetailService.top(AccountDetailType.REWARD);
-        return Result.success(convertFromPo(records));
-    }
-
-    private List<NotificationResp> convertFromPo(List<AccountDetail> poList) {
+    public Result reward(Integer size) {
+        List<Notification> withdraw = notificationService.getReward(size);
         List<NotificationResp> respList = new ArrayList<>();
-        poList.forEach(po -> {
+        withdraw.forEach(po -> {
             NotificationResp resp = new NotificationResp();
-            resp.setTitle("user" + po.getUserId());
-            //resp.setTime(TimeUtils.mill2HourMin(System.currentTimeMillis() - po.getUpdateTime().getTime()));
-            resp.setTime("now");
-            resp.setDescription("Rp" + po.getCredit());
+            resp.setTitle(po.getTitle());
+            resp.setTime(TimeUtils.mill2HourMin(System.currentTimeMillis() - po.getTime().getTime()));
+            resp.setDescription(po.getDescription());
             respList.add(resp);
         });
-        return respList;
+        return Result.success(respList);
     }
 
 }

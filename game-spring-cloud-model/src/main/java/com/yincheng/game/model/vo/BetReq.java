@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+
 /**
  * @author qijianguo
  */
@@ -20,6 +21,9 @@ public class BetReq extends Page {
     private String target;
 
     public boolean validate() {
+        if (descs() == null) {
+            setDesc("period");
+        }
         return gameId != null;
     }
 

@@ -16,4 +16,6 @@ public class NotificationResp {
     private String time;
     @ApiModelProperty(value = "描述", required = true, dataType = "String")
     private String description;
+    @ApiModelProperty(value = "头像", required = true, dataType = "String")
+    private String avatar;
 }

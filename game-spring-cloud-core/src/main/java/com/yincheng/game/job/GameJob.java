@@ -77,11 +77,9 @@ public class GameJob extends QuartzJobBean {
             PeriodReq req = new PeriodReq();
             req.setGameId(gameFlow.getId());
             req.setStatus(0);
-            req.setDesc("period");
-            req.setSize(1);
-            List<Task> records = taskService.getPeriod(req);
-            if (!CollectionUtils.isEmpty(records)) {
-                task = records.get(0);
+            Task maxPeriod = taskService.getMaxPeriod(req);
+            if (maxPeriod != null) {
+                task = maxPeriod;
             }
         } finally {
             gameFlow.setNextPeriod(task.getPeriod());

@@ -1,6 +1,8 @@
 package com.yincheng.game.web.interceptor;
 
 import com.yincheng.game.model.Constants;
+import com.yincheng.game.model.po.User;
+import com.yincheng.game.model.vo.UserPrincipal;
 import com.yincheng.game.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
@@ -40,9 +42,10 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             // 如果token不为空，说明用户已登录， username = id
             if (!StringUtils.isEmpty(token)) {
-                Integer userId = tokenService.simpleVerify(token);
-                if (userId != null) {
-                    accessor.setUser(() -> String.valueOf(userId));
+                UserPrincipal tokenUser = tokenService.getPrincipal(token);
+                if (tokenUser != null) {
+                    //accessor.setUser(() -> String.valueOf(tokenUser.getId()));
+                    accessor.setUser(tokenUser);
                 }
             }
             // 如果token为空，则用户未登录，username = sessionId

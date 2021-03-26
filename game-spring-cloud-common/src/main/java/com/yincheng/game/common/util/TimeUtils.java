@@ -328,21 +328,18 @@ public class TimeUtils {
         long min = millDiff % nh / nm;
         // 计算差多少秒//输出结果
         long sec = millDiff % nh % nm / ns;
-        StringBuilder time = new StringBuilder();
         if (hour > 0) {
-            time.append(hour + " Hours ago");
+            return hour + "Hour";
         } else {
             if (min > 30) {
-                time.append(min + " Minutes age");
+                return "30Min";
             } else if (min > 15) {
-                time.append(min + " Minutes age");
+                return "15Min";
             } else if (min > 5) {
-                time.append(min + " Minutes age");
+                return "5Min";
             } else {
-                time.append("a moment ago");
+                return "now";
             }
         }
-        return time.toString();
     }
-
 }

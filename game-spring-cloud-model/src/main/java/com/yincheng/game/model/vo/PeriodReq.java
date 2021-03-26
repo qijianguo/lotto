@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @author qijianguo
  */
@@ -16,6 +18,10 @@ public class PeriodReq extends Page {
     private Integer gameId;
     @ApiModelProperty(value = "状态", required = true, dataType = "Integer")
     private Integer status;
+    @ApiModelProperty(value = "在...之前", required = true, dataType = "Date")
+    private Date beforeDate;
+    @ApiModelProperty(value = "在...之后", required = true, dataType = "Date")
+    private Date afterDate;
 
     public boolean validate() {
         long size = getSize();

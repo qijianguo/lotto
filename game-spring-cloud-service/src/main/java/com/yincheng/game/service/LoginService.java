@@ -30,4 +30,5 @@ public interface LoginService {
      * @return
      */
     User login(LoginFacebookReq req);
+
 }

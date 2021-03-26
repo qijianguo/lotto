@@ -1,5 +1,6 @@
 package com.yincheng.game.service;
 
+import com.alibaba.fastjson.JSON;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -8,6 +9,7 @@ import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.model.RedisKeys;
 import com.yincheng.game.model.po.User;
+import com.yincheng.game.model.vo.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,7 @@ public class TokenServiceImpl implements TokenService {
         if (!StringUtils.isEmpty(oldToken)) {
             remove(oldToken);
         }
+        String userStr = JSON.toJSONString(user);
         Date date = new Date(System.currentTimeMillis()+EXPIRE_DATE);
         Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
         Map<String, Object> headers = new HashMap<>(2);
@@ -48,6 +51,7 @@ public class TokenServiceImpl implements TokenService {
         headers.put("alg", "HS256");
         String token = JWT.create().withHeader(headers)
                 .withClaim("userId", user.getId())
+                //.withClaim("userinfo", userStr)
                 .withExpiresAt(date)
                 .sign(algorithm);
         user.setToken(token);
@@ -57,18 +61,18 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void remove(String token) {
-        Integer userId = simpleVerify(token);
-        if (userId != null) {
-            redisTemplate.delete(RedisKeys.user(userId));
+        User user = simpleVerify(token);
+        if (user != null) {
+            redisTemplate.delete(RedisKeys.user(user.getId()));
         }
     }
 
     @Override
     public User verify(String token) {
-        try {
-            Integer userId = simpleVerify(token);
+        UserPrincipal tokenUser = getPrincipal(token);
+        if (tokenUser != null) {
             // 校验
-            Object o = redisTemplate.opsForValue().get(RedisKeys.user(userId));
+            Object o = redisTemplate.opsForValue().get(RedisKeys.user(tokenUser.getUserId()));
             if (o instanceof User) {
                 User user = (User) o;
                 String old = user.getToken();
@@ -77,21 +81,36 @@ public class TokenServiceImpl implements TokenService {
                     return user;
                 }
             }
-        } catch (Exception ignore) {}
+        }
         throw new BusinessException(EmBusinessError.USER_TOKEN_EXPIRED);
     }
 
     @Override
-    public Integer simpleVerify(String token) {
-        Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
-        JWTVerifier verifier = JWT.require(algorithm).build();
+    public User simpleVerify(String token) {
         try {
+            Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+            JWTVerifier verifier = JWT.require(algorithm).build();
             DecodedJWT jwt = verifier.verify(token);
-            int userId = jwt.getClaim("userId").asInt();
-            return userId;
-        } catch (Exception e) {
-            throw new BusinessException(EmBusinessError.USER_TOKEN_EXPIRED);
-        }
+            String userId = jwt.getClaim("userId").asString();
+            if (userId != null) {
+                User user = new User();
+                user.setId(Integer.parseInt(userId));
+                return user;
+            }
+        } catch (Exception ignore) {}
+        return null;
+    }
+
+    @Override
+    public UserPrincipal getPrincipal(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            DecodedJWT jwt = verifier.verify(token);
+            Integer userId = jwt.getClaim("userId").asInt();
+            return new UserPrincipal(userId);
+        } catch (Exception ignore) {}
+        return null;
     }
 
 }

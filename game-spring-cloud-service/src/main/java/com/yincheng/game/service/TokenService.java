@@ -1,6 +1,7 @@
 package com.yincheng.game.service;
 
 import com.yincheng.game.model.po.User;
+import com.yincheng.game.model.vo.UserPrincipal;
 
 /**
  * @author qijianguo
@@ -32,6 +33,13 @@ public interface TokenService {
      * @param token
      * @return
      */
-    Integer simpleVerify(String token);
+    User simpleVerify(String token);
+
+    /**
+     * 获取用户认证信息
+     * @param token
+     * @return
+     */
+    UserPrincipal getPrincipal(String token);
 
 }
