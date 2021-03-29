@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 任务
@@ -89,9 +91,25 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
         List<Integer> nums = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
-            nums.add(RandomUtils.nextInt(0, 100) % 10);
+            nums.add(RandomUtils.nextInt(0, 10));
         }
         return nums;
+    }
+
+    public static void main(String[] args) {
+        Map<String, Integer> map = new HashMap<>();
+        for (int i = 0; i < 10; i++) {
+            int i1 = RandomUtils.nextInt(0, 10);
+            String key = String.valueOf(i1);
+            if (map.containsKey(key)) {
+                int val = map.get(key).intValue();
+                map.put(key, val + 1);
+            } else {
+                map.put(key, 1);
+            }
+            System.out.println(i1);
+        }
+        System.out.println(map);
     }
 
 }

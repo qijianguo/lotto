@@ -43,7 +43,6 @@ public class TokenServiceImpl implements TokenService {
         if (!StringUtils.isEmpty(oldToken)) {
             remove(oldToken);
         }
-        String userStr = JSON.toJSONString(user);
         Date date = new Date(System.currentTimeMillis()+EXPIRE_DATE);
         Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
         Map<String, Object> headers = new HashMap<>(2);
@@ -51,7 +50,6 @@ public class TokenServiceImpl implements TokenService {
         headers.put("alg", "HS256");
         String token = JWT.create().withHeader(headers)
                 .withClaim("userId", user.getId())
-                //.withClaim("userinfo", userStr)
                 .withExpiresAt(date)
                 .sign(algorithm);
         user.setToken(token);
@@ -72,12 +70,15 @@ public class TokenServiceImpl implements TokenService {
         UserPrincipal tokenUser = getPrincipal(token);
         if (tokenUser != null) {
             // 校验
-            Object o = redisTemplate.opsForValue().get(RedisKeys.user(tokenUser.getUserId()));
+            String key = RedisKeys.user(tokenUser.getUserId());
+            Object o = redisTemplate.opsForValue().get(key);
             if (o instanceof User) {
                 User user = (User) o;
                 String old = user.getToken();
                 // 只允许最新的Token去登录
                 if (Objects.equals(old, token)) {
+                    // 延长时间
+                    redisTemplate.expire(key, EXPIRE_DATE, TimeUnit.MILLISECONDS);
                     return user;
                 }
             }

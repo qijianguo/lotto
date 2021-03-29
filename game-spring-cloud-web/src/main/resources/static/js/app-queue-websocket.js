@@ -1,7 +1,7 @@
 // 设置 STOMP 客户端
 var stompClient = null;
 // 设置 WebSocket 进入端点
-var SOCKET_ENDPOINT = "/ws";
+var SOCKET_ENDPOINT = "/lotto/ws";
 // 设置订阅消息的请求前缀
 var SUBSCRIBE_PREFIX = "/topic"
 // 设置订阅消息的请求地址
@@ -24,7 +24,7 @@ function connect() {
 /* 订阅信息 */
 function subscribeSocket(){
     // 设置订阅地址
-    SUBSCRIBE = SUBSCRIBE_PREFIX + $("#subscribe").val();
+    SUBSCRIBE = $("#subscribe").val();
     // 输出订阅地址
     alert("设置订阅地址为：" + SUBSCRIBE);
     // 执行订阅消息
