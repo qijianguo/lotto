@@ -58,24 +58,30 @@ public class GameJobManager {
         }
     }
 
-    /**
-     * 重新开始任务
-     * @param gameFlow
-     * @return
-     */
-    public Date restartJob(GameFlow gameFlow) {
+    public void pauseJob(Integer gameId) {
+        String jobKey = getJobKey(gameId);
         try {
-            String jobKey = getJobKey(gameFlow.getId());
-            SimpleScheduleBuilder schedule = SimpleScheduleBuilder.simpleSchedule()
-                    .repeatForever();
-            Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(getJobKey(gameFlow.getId()))
-                    .startNow()
-                    .withSchedule(schedule).build();
-            return scheduler.rescheduleJob(new TriggerKey(jobKey), trigger);
-        } catch (Exception e) {
-            logger.error("重新创建定时任务出错", e);
-            return null;
+            scheduler.pauseJob(new JobKey(jobKey));
+        } catch (SchedulerException e) {
+            logger.error("停止定时任务出错", e);
+        }
+    }
+
+    public void resume(Integer gameId) {
+        String jobKey = getJobKey(gameId);
+        try {
+            scheduler.resumeJob(new JobKey(jobKey));
+        } catch (SchedulerException e) {
+            logger.error("恢复定时任务出错", e);
+        }
+    }
+
+    public void delete(Integer gameId) {
+        String jobKey = getJobKey(gameId);
+        try {
+            scheduler.deleteJob(new JobKey(jobKey));
+        } catch (SchedulerException e) {
+            logger.error("删除定时任务出错", e);
         }
     }
 

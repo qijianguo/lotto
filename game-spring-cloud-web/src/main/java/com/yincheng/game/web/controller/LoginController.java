@@ -29,7 +29,7 @@ public class LoginController {
     private TokenService tokenService;
 
     @ApiOperation(value = "Facebook登录/注册")
-    @GetMapping("/login/facebook")
+    @PostMapping("/login/facebook")
     public Result login(LoginFacebookReq req) {
         User user = loginService.login(req);
         return Result.success(new UserResp(user));

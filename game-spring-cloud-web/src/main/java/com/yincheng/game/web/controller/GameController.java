@@ -3,6 +3,7 @@ package com.yincheng.game.web.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
+import com.yincheng.game.job.GameJobManager;
 import com.yincheng.game.model.Result;
 import com.yincheng.game.model.anno.Authentication;
 import com.yincheng.game.model.enums.Role;
@@ -17,10 +18,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +35,8 @@ public class GameController {
     private GameFlowService gameFlowService;
     @Autowired
     private GameConfigService gameConfigService;
+    @Autowired
+    private GameJobManager gameJobManager;
 
     @ApiOperation(value = "游戏列表", response = GameResp.class)
     @GetMapping("/list")
@@ -67,7 +67,18 @@ public class GameController {
         return Result.success();
     }
 
+    @ApiOperation(value = "停止游戏")
+    @DeleteMapping
+    public Result pause(Integer gameId) {
+        gameJobManager.pauseJob(gameId);
+        return Result.success();
+    }
 
-
+    @ApiOperation(value = "恢复游戏")
+    @PutMapping
+    public Result resume(Integer gameId) {
+        gameJobManager.resume(gameId);
+        return Result.success();
+    }
 
 }
