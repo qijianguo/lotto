@@ -47,7 +47,7 @@ spring:
 
 logging:
   level:
-    root: INFO
+    root: DEBUG
 
 gameFlow:
   thread:
@@ -55,7 +55,7 @@ gameFlow:
     default: 8
   job:
     enable: false
-  workspace: ./data/gameFlow
+  workspace: /root/logs
   bloomfilter:
     capacity: 1000000
     error-rate: 0.0001

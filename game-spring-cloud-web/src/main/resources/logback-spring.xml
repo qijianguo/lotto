@@ -11,7 +11,7 @@
     </appender>
     <!-- 输出日志文件 -->
     <appender name="File"  class="com.yincheng.game.web.logbak.GameFlowFileAppender">
-        <file>${WORKSPACE}/logs/gameFlow-flow.log</file>
+        <file>${WORKSPACE}/gameFlow-flow.log</file>
         <append>true</append>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
