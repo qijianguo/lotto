@@ -47,12 +47,6 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     @Autowired
     private NotificationService notificationService;
 
-    private static final Double MIDDLE = 4.5;
-
-    private static final Integer MOD_0 = 0;
-    private static final Integer MOD_1 = 1;
-    private static final Integer N_2 = 2;
-
     @Override
     public void settle(Task task) {
         settle(null, task, false);
@@ -110,6 +104,10 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 if (mode1 == null) {
                     return;
                 }
+                Double MIDDLE = 4.5;
+                if (t == Bet.Target.SUM) {
+                    MIDDLE = 13.5;
+                }
                 switch (mode1) {
                     case HIGH:
                         if (num > MIDDLE) {
@@ -124,13 +122,13 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                         }
                         break;
                     case ODD:
-                        if (num % N_2 == MOD_1) {
+                        if (num % 2 == 1) {
                             // 中奖
                             totalCount.incrementAndGet();
                         }
                         break;
                     case EVEN:
-                        if (num % N_2 == MOD_0) {
+                        if (num % 2 == 0) {
                             // 中奖
                             totalCount.incrementAndGet();
                         }

@@ -70,6 +70,7 @@ public enum Bet {
                 num = result.size() > 4 ? result.get(3) : -1;
                 break;
             case SUM:
+                num = result.size() > 0 ? result.stream().mapToInt(Integer::intValue).sum() : -1;
                 break;
             default:
         }
