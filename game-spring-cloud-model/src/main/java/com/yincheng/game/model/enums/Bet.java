@@ -58,16 +58,16 @@ public enum Bet {
         Integer num = -1;
         switch (target) {
             case A:
-                num = result.size() > 1 ? result.get(0) : -1;
+                num = result.size() >= 1 ? result.get(0) : -1;
                 break;
             case B:
-                num = result.size() > 2 ? result.get(1) : -1;
+                num = result.size() >= 2 ? result.get(1) : -1;
                 break;
             case C:
-                num = result.size() > 3 ? result.get(2) : -1;
+                num = result.size() >= 3 ? result.get(2) : -1;
                 break;
             case D:
-                num = result.size() > 4 ? result.get(3) : -1;
+                num = result.size() >= 4 ? result.get(3) : -1;
                 break;
             case SUM:
                 num = result.size() > 0 ? result.stream().mapToInt(Integer::intValue).sum() : -1;

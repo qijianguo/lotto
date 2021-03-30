@@ -2,6 +2,7 @@ package com.yincheng.game.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.dao.mapper.TaskMapper;
 import com.yincheng.game.model.enums.GameType;
 import com.yincheng.game.model.po.Task;
@@ -9,6 +10,7 @@ import com.yincheng.game.model.vo.PeriodReq;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
+    @Transactional(rollbackFor = BusinessException.class)
     public void updateResult(String gameType, Task task) {
         List<Integer> nums = getNums(gameType);
         task.setPeriodResult(StringUtils.join(nums, ","), nums.stream().mapToInt(Integer::intValue).sum());

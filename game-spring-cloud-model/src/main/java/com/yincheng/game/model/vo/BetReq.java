@@ -22,7 +22,7 @@ public class BetReq extends Page {
 
     public boolean validate() {
         if (descs() == null) {
-            setDesc("period");
+            setDesc("period", "create_time");
         }
         return gameId != null;
     }
