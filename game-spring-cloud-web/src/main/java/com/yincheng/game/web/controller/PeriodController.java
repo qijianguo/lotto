@@ -9,11 +9,10 @@ import com.yincheng.game.model.enums.Role;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.BetResp;
 import com.yincheng.game.model.vo.PeriodReq;
-import com.yincheng.game.model.vo.PeriodResp;
+import com.yincheng.game.model.vo.TaskResp;
 import com.yincheng.game.service.TaskService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,13 +66,9 @@ public class PeriodController {
         return Result.success(periodPage);
     }
 
-    private List<PeriodResp> convert(List<Task> records) {
-        List<PeriodResp> respList = new ArrayList<>();
-        records.forEach(po -> {
-            PeriodResp resp = new PeriodResp();
-            BeanUtils.copyProperties(po, resp);
-            respList.add(resp);
-        });
+    private List<TaskResp> convert(List<Task> records) {
+        List<TaskResp> respList = new ArrayList<>();
+        records.forEach(po -> respList.add(new TaskResp(po)));
         return respList;
     }
 

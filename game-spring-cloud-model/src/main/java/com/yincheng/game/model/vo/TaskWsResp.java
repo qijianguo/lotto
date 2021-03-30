@@ -11,13 +11,13 @@ import lombok.Data;
 public class TaskWsResp {
 
     /** 本期 */
-    private TaskResp task;
+    private TaskResp curr;
     /** 下期 */
-    private TaskResp nextTask;
+    private TaskResp next;
 
-    public TaskWsResp(Task task, Task nextTask) {
-        this.task = new TaskResp(task);
-        this.nextTask = new TaskResp(nextTask);
+    public TaskWsResp(Task curr, Task next) {
+        this.curr = new TaskResp(curr);
+        this.next = new TaskResp(next);
     }
 
 }

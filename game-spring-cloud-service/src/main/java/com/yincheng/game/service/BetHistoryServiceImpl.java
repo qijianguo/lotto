@@ -87,7 +87,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         // 标的
         Bet.Target t = Bet.target().get(betHistory.getTarget().toUpperCase());
         // 开奖结果
-        Integer num = Bet.getTargetNum(t, result);
+        Integer num = Bet.getTargetNum(t, result).get(0);
         List<String> betList = Arrays.stream(betHistory.getBet().split(",")).collect(Collectors.toList());
         AtomicInteger totalCount = new AtomicInteger(0);
         betList.forEach(i -> {
@@ -104,19 +104,19 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 if (mode1 == null) {
                     return;
                 }
-                Double MIDDLE = 4.5;
+                double middle = 4.5;
                 if (t == Bet.Target.SUM) {
-                    MIDDLE = 13.5;
+                    middle = 13.5;
                 }
                 switch (mode1) {
                     case HIGH:
-                        if (num > MIDDLE) {
+                        if (num > middle) {
                             // 中奖
                             totalCount.incrementAndGet();
                         }
                         break;
                     case LOW:
-                        if (num < MIDDLE) {
+                        if (num < middle) {
                             // 中奖
                             totalCount.incrementAndGet();
                         }
@@ -138,6 +138,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
+                throw e;
             }
         });
         int reward = 0;
@@ -168,8 +169,6 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         }
         return null;
     }
-
-
 
     @Override
     public Account bet(User user, BetAddReq req) {
@@ -216,7 +215,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     }
 
     @Override
-    public IPage list(User user, BetReq req) {
+    public IPage<BetHistory> list(User user, BetReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
