@@ -18,11 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -66,14 +68,35 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             return;
         }
         // 多线程执行
+        /*Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
+        groupByUser.keySet().forEach(userId -> {
+            ThreadPoolUtils.execute(() -> {
+                Account account = settle(groupByUser.get(userId), result);
+                if (notice && account != null) {
+                    webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
+                    notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
+                }
+            });
+        });*/
+
         list.forEach(bet -> ThreadPoolUtils.execute(() -> {
-            Account account = settle(bet, result);
+            Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
                 notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
             }
         }));
+    }
 
+    public Account settle(List<BetHistory> bets, List<Integer> result) {
+        AtomicReference<Account> account = new AtomicReference<>(null);
+        bets.forEach(bet -> {
+            Account acc = betHistoryService.settle(bet, result);
+            if (acc != null) {
+                account.set(acc);
+            }
+        });
+        return account.get();
     }
 
     /**
@@ -83,6 +106,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
      * @return 用户账户积分
      */
     @Override
+    @Transactional(rollbackFor = BusinessException.class)
     public Account settle(BetHistory betHistory, List<Integer> result) {
         // 标的
         Bet.Target t = Bet.target().get(betHistory.getTarget().toUpperCase());
@@ -160,12 +184,14 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 .update();
 
         if (rewardCount > 0) {
-            // 更新账户余额
-            AccountDetail detail = new AccountDetail();
-            detail.create(betHistory.getUserId(), reward, AccountDetailType.REWARD);
-            Account account = accountService.betReward(detail);
-            account.setReward(reward);
-            return account;
+            synchronized (betHistory.getUserId()) {
+                // 更新账户余额
+                AccountDetail detail = new AccountDetail();
+                detail.create(betHistory.getUserId(), reward, AccountDetailType.REWARD);
+                Account account = accountService.betReward(detail);
+                account.setReward(reward);
+                return account;
+            }
         }
         return null;
     }

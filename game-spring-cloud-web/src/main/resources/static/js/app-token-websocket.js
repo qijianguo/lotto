@@ -2,7 +2,7 @@
 var stompClient = null;
 
 // 设置 WebSocket 进入端点
-var SOCKET_ENDPOINT = "/ws";
+var SOCKET_ENDPOINT = "/lotto/ws";
 // 设置订阅消息的请求地址前缀
 var SUBSCRIBE_PREFIX  = "/queue";
 // 设置订阅地址
@@ -19,7 +19,7 @@ function connect() {
     // 获取 TOKEN
     var myToken = $("#myToken").val();
     // STOMP 客户端连接
-    stompClient.connect({token: myToken}, function (frame) {
+    stompClient.connect({Authorization: myToken}, function (frame) {
         alert("连接成功");
     });
 }

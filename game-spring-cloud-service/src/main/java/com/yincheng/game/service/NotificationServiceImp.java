@@ -65,8 +65,8 @@ public class NotificationServiceImp implements NotificationService {
 
     private void save(String key, Integer maxSize, Notification notification) {
         Long size = redisTemplate.opsForList().size(key);
-        if (size > maxSize) {
-            redisTemplate.opsForList().rightPopAndLeftPush(key, notification);
+        if (size >= maxSize) {
+            redisTemplate.opsForList().leftPush(key, notification);
             redisTemplate.opsForList().trim(key, 0, maxSize);
         } else {
             redisTemplate.opsForList().leftPush(key, notification);

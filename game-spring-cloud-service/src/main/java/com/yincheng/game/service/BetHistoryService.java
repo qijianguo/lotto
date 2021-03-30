@@ -55,4 +55,5 @@ public interface BetHistoryService extends IService<BetHistory> {
      */
     IPage<BetHistory> list(User user, BetReq req);
 
+
 }
