@@ -10,6 +10,7 @@ import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.vo.NotificationReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -23,6 +24,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private AccountDetailService accountDetailService;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private AccountService accountService;
 
     @Override
     public Account get(Integer userId) {
@@ -36,25 +39,25 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     public Account prepaid(AccountDetail detail) {
         detail.setDetailType(AccountDetailType.PREPAID);
-        return increase(detail);
+        return accountService.increase(detail);
     }
 
     @Override
     public Account betSpeed(AccountDetail detail) {
         detail.setDetailType(AccountDetailType.SPEED);
-        return decrease(detail);
+        return accountService.decrease(detail);
     }
 
     @Override
     public Account betReward(AccountDetail detail) {
         detail.setDetailType(AccountDetailType.REWARD);
-        return increase(detail);
+        return accountService.increase(detail);
     }
 
     @Override
     public Account withdraw(AccountDetail detail) {
         detail.setDetailType(AccountDetailType.WITHDRAW);
-        Account account = decrease(detail);
+        Account account = accountService.decrease(detail);
         notificationService.withdraw(new NotificationReq(account.getUserId(), "Withdraw Rp" + account.getReward()));
         return account;
     }
@@ -62,9 +65,11 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     public Account giving(AccountDetail detail) {
         detail.setDetailType(AccountDetailType.GIFT);
-        return increase(detail);
+        return accountService.increase(detail);
     }
 
+    @Override
+    @Transactional(rollbackFor = BusinessException.class)
     public Account increase(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
@@ -91,7 +96,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         return account;
     }
 
-    private Account decrease(AccountDetail detail) {
+    @Override
+    @Transactional(rollbackFor = BusinessException.class)
+    public Account decrease(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }

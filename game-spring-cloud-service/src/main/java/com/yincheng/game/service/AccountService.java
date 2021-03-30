@@ -52,6 +52,8 @@ public interface AccountService extends IService<Account> {
      */
     Account giving(AccountDetail detail);
 
+    Account increase(AccountDetail detail);
 
+    Account decrease(AccountDetail detail);
 
 }

@@ -51,6 +51,7 @@ public class PeriodController {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         req.setDesc("id");
+        req.setStatus(1);
         List<Task> records = taskService.getPeriod(req);
         return Result.success(convert(records));
     }
