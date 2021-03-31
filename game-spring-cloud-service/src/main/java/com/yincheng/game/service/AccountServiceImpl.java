@@ -10,7 +10,6 @@ import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.vo.NotificationReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -72,55 +71,62 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @Transactional(rollbackFor = BusinessException.class, isolation = Isolation.REPEATABLE_READ)
-    public synchronized Account increase(AccountDetail detail) {
+    @Transactional(rollbackFor = BusinessException.class)
+    public Account increase(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         int credit = detail.getCredit();
-        Account account = get(detail.getUserId());
-        // 是否是奖励
-        if (AccountDetailType.GIFT.getType().equals(detail.getType())) {
-            if (account.getStatus() != 0) {
-                throw new BusinessException(EmBusinessError.REWARD_REPEATED_ERROR);
+        final Object lock = Integer.valueOf(detail.getUserId());
+        Account account;
+        synchronized (lock) {
+            account = get(detail.getUserId());
+            // 是否是奖励
+            if (AccountDetailType.GIFT.getType().equals(detail.getType())) {
+                if (account.getStatus() != 0) {
+                    throw new BusinessException(EmBusinessError.REWARD_REPEATED_ERROR);
+                }
+                account.setStatus(1);
             }
-            account.setStatus(1);
+            account.setBalance(account.getBalance() + credit);
+            account.setUpdateTime(new Date());
+            detail.setBalance(account.getBalance());
+            boolean success = saveOrUpdate(account);
+            if (!success) {
+                throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
+            }
+            accountDetailService.save(detail);
         }
-        account.setBalance(account.getBalance() + credit);
-        account.setUpdateTime(new Date());
-
-        boolean success = saveOrUpdate(account);
-        if (!success) {
-            throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
-        }
-        // 消费明细
-        detail.setBalance(account.getBalance());
-        accountDetailService.save(detail);
         return account;
     }
 
     @Override
     @Transactional(rollbackFor = BusinessException.class)
-    public synchronized Account decrease(AccountDetail detail) {
+    public Account decrease(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         int credit = detail.getCredit();
+        final Object lock = Integer.valueOf(detail.getUserId());
         // 校验余额
-        Account account = get(detail.getUserId());
-        if (credit > account.getBalance()) {
-            throw new BusinessException(EmBusinessError.ACCOUNT_INSUFFICIENT_BALANCE);
+        Account account;
+        synchronized (lock) {
+            account = get(detail.getUserId());
+            if (credit > account.getBalance()) {
+                throw new BusinessException(EmBusinessError.ACCOUNT_INSUFFICIENT_BALANCE);
+            }
+            account.setBalance(account.getBalance() - credit);
+            account.setUpdateTime(new Date());
+            detail.setBalance(account.getBalance());
+            boolean success = updateById(account);
+            if (!success) {
+                throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
+            }
+            // 消费明细
+            accountDetailService.save(detail);
         }
-        account.setBalance(account.getBalance() - credit);
-        account.setUpdateTime(new Date());
-        boolean success = updateById(account);
-        if (!success) {
-            throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
-        }
-        detail.setBalance(account.getBalance());
-        // 消费明细
-        accountDetailService.save(detail);
         return account;
     }
+
 
 }

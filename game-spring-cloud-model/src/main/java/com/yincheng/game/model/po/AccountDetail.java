@@ -62,5 +62,4 @@ public class AccountDetail {
         return userId != null && type != null && balance != null && credit != null && confirm != null && success != null;
     }
 
-
 }
