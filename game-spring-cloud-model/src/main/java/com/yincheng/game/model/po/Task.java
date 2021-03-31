@@ -42,7 +42,21 @@ public class Task {
         this.sum = sum;
         this.updateTime = new Date();
         this.status = 1;
-
     }
 
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", gameId=" + gameId +
+                ", period=" + period +
+                ", status=" + status +
+                ", result='" + result + '\'' +
+                ", sum=" + sum +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                '}';
+    }
 }

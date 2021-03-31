@@ -56,6 +56,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
 
     @Override
     public void settle(String gameName, Task task, boolean notice) {
+        Date start = new Date();
         if (notice && StringUtils.isEmpty(gameName)) {
             throw new IllegalArgumentException("gameName mast be null or empty.");
         }
@@ -78,7 +79,6 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 }
             });
         });*/
-
         list.forEach(bet -> ThreadPoolUtils.execute(() -> {
             Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
@@ -86,6 +86,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
             }
         }));
+        logger.info("{} --> {} settle finished! time：{}", gameName, task, (System.currentTimeMillis() - start.getTime()) / 1000);
     }
 
     public Account settle(List<BetHistory> bets, List<Integer> result) {

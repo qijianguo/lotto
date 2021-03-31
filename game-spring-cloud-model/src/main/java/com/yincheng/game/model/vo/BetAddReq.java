@@ -36,7 +36,7 @@ public class BetAddReq {
         AtomicBoolean bet = new AtomicBoolean(true);
         // 数字和其他类型是二选一
         if (!CollectionUtils.isEmpty(betHloe)) {
-            if (!CollectionUtils.isEmpty(betNums) || credit % betHloe.size() != 0) {
+            if (!CollectionUtils.isEmpty(betNums) || credit % (betHloe.size() * 2000) != 0) {
                 bet.set(false);
             } else {
                 betHloe.forEach(mode -> {
@@ -46,7 +46,7 @@ public class BetAddReq {
                 });
             }
         } else {
-            if (credit % betNums.size() != 0) {
+            if (credit % (betNums.size() * 2000) != 0) {
                 bet.set(false);
             } else {
                 betNums.forEach(num -> {
