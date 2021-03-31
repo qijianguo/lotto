@@ -37,12 +37,6 @@ public class Task {
 
     private Date updateTime;
 
-    public Task init() {
-        Task task = new Task();
-        task.setStartTime(new Date());
-        return task;
-    }
-
     public void setPeriodResult(String result, Integer sum) {
         this.result = result;
         this.sum = sum;

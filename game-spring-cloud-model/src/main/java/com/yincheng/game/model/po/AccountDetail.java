@@ -46,13 +46,16 @@ public class AccountDetail {
         this.success = speed.getSuccess();
     }
 
-    public void create(Integer userId, Integer credit, AccountDetailType speed) {
-        this.userId = userId;
-        this.type = speed.getType();
-        this.confirm = speed.getDefConfirm();
-        this.success = speed.getSuccess();
-        this.credit = credit;
-        this.updateTime = this.createTime = new Date();
+    public static AccountDetail valueOf(Integer userId, Integer credit, AccountDetailType speed) {
+        AccountDetail detail = new AccountDetail();
+        detail.setUserId(userId);
+        detail.setType(speed.getType());
+        detail.setConfirm(speed.getDefConfirm());
+        detail.setSuccess(speed.getSuccess());
+        detail.setCredit(credit);
+        detail.setCreateTime(new Date());
+        detail.setUpdateTime(detail.getCreateTime());
+        return detail;
     }
 
     public boolean validate() {

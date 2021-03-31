@@ -57,8 +57,7 @@ public class AccountController {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
-        AccountDetail detail = new AccountDetail();
-        detail.create(user.getId(), req.getCredit(), AccountDetailType.WITHDRAW);
+        AccountDetail detail = AccountDetail.valueOf(user.getId(), req.getCredit(), AccountDetailType.WITHDRAW);
         Account account = accountService.withdraw(detail);
         return Result.success(new AccountResp(account));
     }
@@ -79,8 +78,7 @@ public class AccountController {
     @PostMapping("/reward")
     @Authentication
     public Result giving(@ApiIgnore @CurrentUser User user) {
-        AccountDetail detail = new AccountDetail();
-        detail.create(user.getId(), 100000,  AccountDetailType.GIFT);
+        AccountDetail detail = AccountDetail.valueOf(user.getId(), 1000000,  AccountDetailType.GIFT);
         Account account = accountService.giving(detail);
         return Result.success(new AccountResp(account));
     }

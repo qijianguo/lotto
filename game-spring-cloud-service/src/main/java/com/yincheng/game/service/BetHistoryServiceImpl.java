@@ -184,14 +184,11 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 .update();
 
         if (rewardCount > 0) {
-            synchronized (betHistory.getUserId()) {
-                // 更新账户余额
-                AccountDetail detail = new AccountDetail();
-                detail.create(betHistory.getUserId(), reward, AccountDetailType.REWARD);
-                Account account = accountService.betReward(detail);
-                account.setReward(reward);
-                return account;
-            }
+            // 更新账户余额
+            AccountDetail detail = AccountDetail.valueOf(betHistory.getUserId(), reward, AccountDetailType.REWARD);
+            Account account = accountService.betReward(detail);
+            account.setReward(reward);
+            return account;
         }
         return null;
     }
@@ -225,8 +222,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             throw new BusinessException(EmBusinessError.PERIOD_DRAWN);
         }
         // 更新账户余额
-        AccountDetail detail = new AccountDetail();
-        detail.create(user.getId(), req.getCredit(), AccountDetailType.SPEED);
+        AccountDetail detail = AccountDetail.valueOf(user.getId(), req.getCredit(), AccountDetailType.SPEED);
         Account account = accountService.betSpeed(detail);
 
         BetHistory betHistory = new BetHistory(user, req);

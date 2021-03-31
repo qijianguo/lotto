@@ -35,25 +35,27 @@ public class BetAddReq {
         boolean base = gameId != null && period != null && target != null && credit != null && credit >= 2000;
         AtomicBoolean bet = new AtomicBoolean(true);
         // 数字和其他类型是二选一
-        if (CollectionUtils.isEmpty(betNums)) {
-            if (!CollectionUtils.isEmpty(betHloe) && credit % betHloe.size() == 0) {
+        if (!CollectionUtils.isEmpty(betHloe)) {
+            if (!CollectionUtils.isEmpty(betNums) || credit % betHloe.size() != 0) {
+                bet.set(false);
+            } else {
                 betHloe.forEach(mode -> {
                     if (!Bet.mode().containsKey(mode.toUpperCase())) {
                         bet.set(false);
-                        return;
                     }
                 });
             }
         } else {
-            if (credit % betNums.size() == 0 && CollectionUtils.isEmpty(betHloe)) {
+            if (credit % betNums.size() != 0) {
+                bet.set(false);
+            } else {
                 betNums.forEach(num -> {
                     if (num < 0 || num > 9) {
                         bet.set(false);
-                        return;
                     }
                 });
-                bet.set(isNumBet = true);
             }
+            isNumBet = bet.get();
         }
         return base && bet.get();
     }

@@ -3,7 +3,6 @@ package com.yincheng.game.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.AccountDetail;
-import com.yincheng.game.model.po.User;
 
 /**
  * @author qijianguo

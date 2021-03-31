@@ -35,11 +35,12 @@ public class UserAuth implements Serializable {
 
     private Date updateTime;
 
-    public UserAuth(Integer userId, String mode, String unionId, String openId) {
-        this.userId = userId;
-        this.mode = mode;
-        this.unionId = unionId;
-        this.openId = openId;
-        this.updateTime = this.createTime = new Date();
+    public static UserAuth valueOf(Integer userId, String mode, String unionId, String openId) {
+        UserAuth auth = new UserAuth();
+        auth.setUserId(userId);
+        auth.setMode(mode);
+        auth.setUnionId(unionId);
+        auth.setOpenId(openId);
+        return auth;
     }
 }

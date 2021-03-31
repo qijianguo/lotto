@@ -1,7 +1,6 @@
 package com.yincheng.game.service.login;
 
 import com.yincheng.game.common.exception.BusinessException;
-import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.po.UserAuth;
 import com.yincheng.game.model.vo.LoginReq;
@@ -10,6 +9,7 @@ import com.yincheng.game.service.UserAuthService;
 import com.yincheng.game.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -39,15 +39,10 @@ public class PhoneLogin implements Login {
 
     @Override
     public void verify(LoginReq req) {
-        // TODO 验证码是否正确
-        String phone = req.getPhone();
-        String code = req.getCode();
-        if (phone.equals("17521226604") && !code.equals("1234")) {
-            throw new BusinessException(EmBusinessError.INVALID_PHONE_CODE);
-        }
     }
 
     @Override
+    @Transactional(rollbackFor = BusinessException.class)
     public User register(LoginReq req) {
         List<UserAuth> userAuths = userAuthService.getUserAuths(req.getType(), req.getPhone());
         // 查看是否已经注册过，没有的话注册一下
@@ -58,11 +53,10 @@ public class PhoneLogin implements Login {
             user.setAuths(userAuths);
             userService.updateById(user);
         } else {
-            user = new User();
-            user.init(req.getPhone(), "http://xxx.jpg");
+            user = User.valueOf(req.getPhone(), "http://xxx.jpg");
             boolean save = userService.save(user);
             if (save) {
-                UserAuth userAuth = new UserAuth(user.getId(), req.getType(), req.getPhone(), "");
+                UserAuth userAuth = UserAuth.valueOf(user.getId(), req.getType(), req.getPhone(), "");
                 userAuthService.save(userAuth);
                 user.getAuths().add(userAuth);
             }
@@ -71,6 +65,7 @@ public class PhoneLogin implements Login {
     }
 
     @Override
+    @Transactional(rollbackFor = BusinessException.class)
     public User register(String unionId, String nickName, String cover) {
         List<UserAuth> userAuths = userAuthService.getUserAuths(TYPE, unionId);
         // 查看是否已经注册过，没有的话注册一下
@@ -81,11 +76,10 @@ public class PhoneLogin implements Login {
             user.setAuths(userAuths);
             userService.updateById(user);
         } else {
-            user = new User();
-            user.init(unionId, cover);
+            user = User.valueOf(unionId, cover);
             boolean save = userService.save(user);
             if (save) {
-                UserAuth userAuth = new UserAuth(user.getId(), TYPE, unionId, "");
+                UserAuth userAuth = UserAuth.valueOf(user.getId(), TYPE, unionId, "");
                 userAuthService.save(userAuth);
                 user.getAuths().add(userAuth);
             }

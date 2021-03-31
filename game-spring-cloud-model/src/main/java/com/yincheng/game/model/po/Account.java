@@ -14,7 +14,6 @@ import java.util.Date;
  */
 @Data
 @TableName("t_account")
-@NoArgsConstructor
 public class Account {
 
     @TableId(type = IdType.AUTO)
@@ -32,11 +31,14 @@ public class Account {
     @TableField(exist = false)
     private Integer reward;
 
-    public Account(Integer userId) {
-        this.userId = userId;
-        this.balance = 0;
-        this.status = 0;
-        this.createTime = new Date();
-        this.updateTime = this.createTime;
+    public static Account init(Integer userId) {
+        Account account = new Account();
+        account.setUserId(userId);
+        account.setBalance(0);
+        account.setReward(0);
+        account.setStatus(0);
+        account.setCreateTime(new Date());
+        account.setUpdateTime(account.getCreateTime());
+        return account;
     }
 }

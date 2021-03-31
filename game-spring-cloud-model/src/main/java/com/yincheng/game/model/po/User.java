@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.yincheng.game.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,14 +44,16 @@ public class User implements Serializable {
     @TableField(exist = false)
     private List<UserAuth> auths = new ArrayList<>();
 
-    public void init(String nickName, String avatar) {
-        this.nickName = nickName;
-        this.avatar = avatar;
-        this.updateTime = this.createTime = new Date();
-        this.status = 0;
-        this.roles = "USER";
-        this.realName = "";
-        this.gender = -1;
+    public static User valueOf(String nickName, String avatar) {
+        User user = new User();
+        user.setNickName(nickName);
+        user.setAvatar(avatar);
+        user.setCreateTime(new Date());
+        user.setUpdateTime(user.getUpdateTime());
+        user.setStatus(0);
+        user.setRoles(Role.USER.name());
+        user.setRealName("");
+        user.setGender(-1);
+        return user;
     }
-
 }

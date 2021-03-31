@@ -10,6 +10,7 @@ import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.vo.NotificationReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -26,12 +27,14 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private NotificationService notificationService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private AccountMapper accountMapper;
 
     @Override
     public Account get(Integer userId) {
         Account one = lambdaQuery().eq(Account::getUserId, userId).one();
         if (one == null) {
-            one = new Account(userId);
+            one = Account.init(userId);
         }
         return one;
     }
@@ -69,8 +72,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @Transactional(rollbackFor = BusinessException.class)
-    public Account increase(AccountDetail detail) {
+    @Transactional(rollbackFor = BusinessException.class, isolation = Isolation.REPEATABLE_READ)
+    public synchronized Account increase(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
@@ -98,7 +101,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     @Transactional(rollbackFor = BusinessException.class)
-    public Account decrease(AccountDetail detail) {
+    public synchronized Account decrease(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
@@ -119,4 +122,5 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         accountDetailService.save(detail);
         return account;
     }
+
 }

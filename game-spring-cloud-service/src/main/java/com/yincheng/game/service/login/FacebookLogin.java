@@ -57,11 +57,10 @@ public class FacebookLogin implements Login {
             user.setAuths(userAuths);
             userService.updateById(user);
         } else {
-            user = new User();
-            user.init(userInfo.getName(), userInfo.getPicture());
+            user = User.valueOf(userInfo.getName(), userInfo.getPicture());
             boolean save = userService.save(user);
             if (save) {
-                UserAuth userAuth = new UserAuth(user.getId(), req.getType(), userInfo.getId(), "");
+                UserAuth userAuth = UserAuth.valueOf(user.getId(), req.getType(), userInfo.getId(), "");
                 userAuthService.save(userAuth);
                 user.getAuths().add(userAuth);
             }
@@ -79,11 +78,10 @@ public class FacebookLogin implements Login {
             user.setAuths(userAuths);
             userService.updateById(user);
         } else {
-            user = new User();
-            user.init(nickName, cover);
+            user = User.valueOf(nickName, cover);
             boolean save = userService.save(user);
             if (save) {
-                UserAuth userAuth = new UserAuth(user.getId(), "facebook", unionId, "");
+                UserAuth userAuth = UserAuth.valueOf(user.getId(), "facebook", unionId, "");
                 userAuthService.save(userAuth);
                 user.getAuths().add(userAuth);
             }
