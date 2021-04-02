@@ -55,4 +55,8 @@ public interface AccountService extends IService<Account> {
 
     Account decrease(AccountDetail detail);
 
+    Account increaseRedis(AccountDetail detail);
+
+    Account decreaseRedis(AccountDetail detail);
+
 }

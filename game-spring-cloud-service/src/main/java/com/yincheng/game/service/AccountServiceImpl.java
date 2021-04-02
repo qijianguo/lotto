@@ -8,11 +8,15 @@ import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.vo.NotificationReq;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author qijianguo
@@ -20,14 +24,14 @@ import java.util.Date;
 @Service
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
+
     @Autowired
     private AccountDetailService accountDetailService;
     @Autowired
     private NotificationService notificationService;
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private AccountMapper accountMapper;
 
     @Override
     public Account get(Integer userId) {
@@ -72,15 +76,55 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     @Transactional(rollbackFor = BusinessException.class)
-    public Account increase(AccountDetail detail) {
+    public synchronized Account increase(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
-        int credit = detail.getCredit();
-        final Object lock = Integer.valueOf(detail.getUserId());
-        Account account;
-        synchronized (lock) {
-            account = get(detail.getUserId());
+        Account account = get(detail.getUserId());
+        // 是否是奖励
+        if (AccountDetailType.GIFT.getType().equals(detail.getType())) {
+            if (account.getStatus() != 0) {
+                throw new BusinessException(EmBusinessError.REWARD_REPEATED_ERROR);
+            }
+            account.setStatus(1);
+        }
+        account.increase(detail);
+        accountService.saveOrUpdate(account);
+        accountDetailService.save(detail);
+        return account;
+    }
+
+    @Override
+    @Transactional(rollbackFor = BusinessException.class)
+    public synchronized Account decrease(AccountDetail detail) {
+        if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
+            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+        }
+        // 校验余额
+        Account account = get(detail.getUserId());
+        account.decrease(detail);
+        accountService.updateById(account);
+        // 消费明细
+        accountDetailService.save(detail);
+        return account;
+    }
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Override
+    @Transactional(rollbackFor = BusinessException.class)
+    public Account increaseRedis(AccountDetail detail) {
+        if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
+            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+        }
+        String key = "lock:account:" + detail.getUserId();
+        boolean aBoolean = Optional.ofNullable(redisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS)).orElse(false);
+        if (!aBoolean) {
+            throw new BusinessException(EmBusinessError.REPEAT_COMMIT_ERROR);
+        }
+        try {
+            Account account = get(detail.getUserId());
             // 是否是奖励
             if (AccountDetailType.GIFT.getType().equals(detail.getType())) {
                 if (account.getStatus() != 0) {
@@ -88,45 +132,37 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 }
                 account.setStatus(1);
             }
-            account.setBalance(account.getBalance() + credit);
-            account.setUpdateTime(new Date());
-            detail.setBalance(account.getBalance());
-            boolean success = saveOrUpdate(account);
-            if (!success) {
-                throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
-            }
+            account.increase(detail);
+            accountService.saveOrUpdate(account);
             accountDetailService.save(detail);
+            return account;
+        } finally {
+            redisTemplate.delete(key);
         }
-        return account;
     }
 
     @Override
     @Transactional(rollbackFor = BusinessException.class)
-    public Account decrease(AccountDetail detail) {
+    public Account decreaseRedis(AccountDetail detail) {
         if (detail == null || detail.getUserId() == null || detail.getCredit() == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
-        int credit = detail.getCredit();
-        final Object lock = Integer.valueOf(detail.getUserId());
-        // 校验余额
-        Account account;
-        synchronized (lock) {
-            account = get(detail.getUserId());
-            if (credit > account.getBalance()) {
-                throw new BusinessException(EmBusinessError.ACCOUNT_INSUFFICIENT_BALANCE);
-            }
-            account.setBalance(account.getBalance() - credit);
-            account.setUpdateTime(new Date());
-            detail.setBalance(account.getBalance());
-            boolean success = updateById(account);
-            if (!success) {
-                throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
-            }
+        String key = "lock:account:" + detail.getUserId();
+        boolean aBoolean = Optional.ofNullable(redisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS)).orElse(false);
+        if (!aBoolean) {
+            throw new BusinessException(EmBusinessError.REPEAT_COMMIT_ERROR);
+        }
+        try {
+            // 校验余额
+            Account account = get(detail.getUserId());
+            account.decrease(detail);
+            accountService.updateById(account);
             // 消费明细
             accountDetailService.save(detail);
+            return account;
+        } finally {
+            redisTemplate.delete(key);
         }
-        return account;
     }
-
 
 }

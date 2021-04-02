@@ -23,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -51,6 +52,9 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
 
     @Override
     public void settle(Task task) {
+        if (task == null || task.getStatus() != 0 || StringUtils.isEmpty(task.getResult())) {
+            throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
+        }
         settle(null, task, false);
     }
 
@@ -69,35 +73,59 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             return;
         }
         // 多线程执行
-        /*Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
-        groupByUser.keySet().forEach(userId -> {
-            ThreadPoolUtils.execute(() -> {
-                Account account = settle(groupByUser.get(userId), result);
-                if (notice && account != null) {
-                    webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
-                    notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
-                }
-            });
-        });*/
-        list.forEach(bet -> ThreadPoolUtils.execute(() -> {
+        Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
+        CountDownLatch latch = new CountDownLatch(list.size());
+        groupByUser.keySet().forEach(userId -> ThreadPoolUtils.execute(() -> {
+            List<BetHistory> userBetList = groupByUser.get(userId);
+            Account account = settle(userBetList, result);
+            if (notice && account != null) {
+                webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
+                notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
+            }
+            latch.countDown();
+        }));
+        /*list.forEach(bet -> ThreadPoolUtils.execute(() -> {
             Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
                 notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
             }
-        }));
+            latch.countDown();
+        }));*/
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+        }
         logger.info("{} --> {} settle finished! time：{}", gameName, task, (System.currentTimeMillis() - start.getTime()) / 1000);
     }
 
-    public Account settle(List<BetHistory> bets, List<Integer> result) {
+    private Account settle(List<BetHistory> bets, List<Integer> result) {
         AtomicReference<Account> account = new AtomicReference<>(null);
         bets.forEach(bet -> {
-            Account acc = betHistoryService.settle(bet, result);
+            Account acc = settle(bet, result, 3);
             if (acc != null) {
+                Account last = account.get();
+                if (last != null) {
+                    acc.setReward(last.getReward() + acc.getReward());
+                }
                 account.set(acc);
             }
         });
         return account.get();
+    }
+
+    private Account settle(BetHistory bet, List<Integer> result, Integer maxTryTimes) {
+        Account acc = null;
+        try {
+            acc = betHistoryService.settle(bet, result);
+        } catch (Exception e) {
+            logger.warn("try settle {}-{}-{} times = {} ", bet.getUserId(), bet.getGameId(), bet.getPeriod(), maxTryTimes);
+            if (maxTryTimes >= 0) {
+                settle(bet, result, maxTryTimes++);
+            }
+        }
+        return acc;
     }
 
     /**

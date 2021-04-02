@@ -13,10 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,11 +29,11 @@ public class TaskJob {
     @Autowired
     private BetHistoryService betHistoryService;
 
-    @Scheduled(cron = "0/20 * * * * ?")
+    /*@Scheduled(cron = "0/20 * * * * ?")
     public void noResultCal() {
         PeriodReq req = new PeriodReq();
         req.setStatus(0);
-        req.setBeforeDate(DateBuilder.futureDate(-2, DateBuilder.IntervalUnit.MINUTE));
+        req.setBeforeDate(DateBuilder.futureDate(-3, DateBuilder.IntervalUnit.MINUTE));
         req.setSearchCount(false);
         List<Task> tasks = taskService.getPeriod(req);
         if (!CollectionUtils.isEmpty(tasks)) {
@@ -44,7 +41,7 @@ public class TaskJob {
             tasks.forEach(task -> betHistoryService.settle(task));
             logger.info("TaskJob end", tasks.size());
         }
-    }
+    }*/
 
     @Scheduled(cron = "0/30 * * * * ?")
     public void noSuccessBet() {

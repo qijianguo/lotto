@@ -4,8 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.yincheng.game.common.exception.BusinessException;
+import com.yincheng.game.common.exception.EmBusinessError;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -40,5 +41,20 @@ public class Account {
         account.setCreateTime(new Date());
         account.setUpdateTime(account.getCreateTime());
         return account;
+    }
+
+    public void increase(AccountDetail detail) {
+        this.balance += detail.getCredit();
+        this.updateTime = new Date();
+        detail.setBalance(this.balance);
+    }
+
+    public void decrease(AccountDetail detail) {
+        if (detail.getCredit() > this.balance) {
+            throw new BusinessException(EmBusinessError.ACCOUNT_INSUFFICIENT_BALANCE);
+        }
+        this.balance -= detail.getCredit();
+        this.updateTime = new Date();
+        detail.setBalance(this.balance);
     }
 }
