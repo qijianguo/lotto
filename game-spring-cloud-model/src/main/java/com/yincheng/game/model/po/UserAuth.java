@@ -20,6 +20,8 @@ import java.util.Date;
 @AllArgsConstructor
 public class UserAuth implements Serializable {
 
+    private static final long serialVersionUID = -1344248376268421269L;
+
     @TableId(type = IdType.AUTO)
     private Integer id;
     /** 用户ID */

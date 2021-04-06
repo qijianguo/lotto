@@ -20,6 +20,9 @@ import java.util.*;
 @NoArgsConstructor
 @TableName("t_user")
 public class User implements Serializable {
+
+    private static final long serialVersionUID = -8651750390690064653L;
+
     @TableId(type = IdType.AUTO)
     private Integer id;
     /** 昵称 */

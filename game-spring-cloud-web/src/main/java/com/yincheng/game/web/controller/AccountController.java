@@ -78,7 +78,7 @@ public class AccountController {
     @PostMapping("/reward")
     @Authentication
     public Result giving(@ApiIgnore @CurrentUser User user) {
-        AccountDetail detail = AccountDetail.valueOf(user.getId(), 1000000,  AccountDetailType.GIFT);
+        AccountDetail detail = AccountDetail.valueOf(user.getId(), 100000,  AccountDetailType.GIFT);
         Account account = accountService.giving(detail);
         return Result.success(new AccountResp(account));
     }

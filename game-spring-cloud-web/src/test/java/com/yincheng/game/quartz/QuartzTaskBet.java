@@ -15,9 +15,9 @@ import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class QuartzTaskTest {
+public class QuartzTaskBet {
 
-    private static Logger logger = LoggerFactory.getLogger(QuartzTaskTest.class);
+    private static Logger logger = LoggerFactory.getLogger(QuartzTaskBet.class);
 
     @Test
     public void helloWord() throws SchedulerException, InterruptedException {

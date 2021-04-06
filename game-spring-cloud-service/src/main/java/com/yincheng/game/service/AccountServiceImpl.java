@@ -81,13 +81,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         Account account = get(detail.getUserId());
-        // 是否是奖励
-        if (AccountDetailType.GIFT.getType().equals(detail.getType())) {
-            if (account.getStatus() != 0) {
-                throw new BusinessException(EmBusinessError.REWARD_REPEATED_ERROR);
-            }
-            account.setStatus(1);
-        }
         account.increase(detail);
         accountService.saveOrUpdate(account);
         accountDetailService.save(detail);

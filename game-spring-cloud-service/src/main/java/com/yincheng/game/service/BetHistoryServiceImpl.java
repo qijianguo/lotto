@@ -10,10 +10,7 @@ import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.enums.Bet;
 import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.model.po.*;
-import com.yincheng.game.model.vo.BetAddReq;
-import com.yincheng.game.model.vo.BetReq;
-import com.yincheng.game.model.vo.NotificationReq;
-import com.yincheng.game.model.vo.RewardResponse;
+import com.yincheng.game.model.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -73,8 +71,8 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             return;
         }
         // 多线程执行
-        Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
         CountDownLatch latch = new CountDownLatch(list.size());
+        Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
         groupByUser.keySet().forEach(userId -> ThreadPoolUtils.execute(() -> {
             List<BetHistory> userBetList = groupByUser.get(userId);
             Account account = settle(userBetList, result);
@@ -84,14 +82,14 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             }
             latch.countDown();
         }));
-        /*list.forEach(bet -> ThreadPoolUtils.execute(() -> {
+        list.forEach(bet -> ThreadPoolUtils.execute(() -> {
             Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
                 notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
             }
             latch.countDown();
-        }));*/
+        }));
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -222,6 +220,9 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         return null;
     }
 
+    @Autowired
+    private BetStatService betStatService;
+
     @Override
     public Account bet(User user, BetAddReq req) {
         if (!req.validate()) {
@@ -262,6 +263,8 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             betHistory.setOdds(singleOdds.getValue());
         }
         betHistoryService.save(betHistory);
+        // TODO 下注统计
+        //betStatService.add(req);
         return account;
     }
 

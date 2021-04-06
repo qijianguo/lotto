@@ -3,20 +3,20 @@ package com.yincheng.game.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yincheng.game.common.exception.BusinessException;
+import com.yincheng.game.common.util.RandomUtils;
 import com.yincheng.game.dao.mapper.TaskMapper;
 import com.yincheng.game.model.enums.GameType;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.PeriodReq;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 任务
@@ -24,6 +24,9 @@ import java.util.Map;
  */
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
+
+    @Autowired
+    private BetStatService betStatService;
 
     @Override
     public Task getByGamePeriod(int gameId, long period) {
@@ -92,27 +95,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 break;
             default:
         }
-        List<Integer> nums = new ArrayList<>(length);
+        /*List<Integer> nums = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
-            nums.add(RandomUtils.nextInt(0, 10));
+            Integer randomNum = RandomUtils.secureRandomNum();
+            nums.add(randomNum);
         }
-        return nums;
+        List<Integer> integers = RandomUtils.secureRandomNums(length);
+        Collections.shuffle(nums);
+        return nums;*/
+        return RandomUtils.secureRandomNums(length);
     }
 
-    public static void main(String[] args) {
-        Map<String, Integer> map = new HashMap<>();
-        for (int i = 0; i < 10; i++) {
-            int i1 = RandomUtils.nextInt(0, 10);
-            String key = String.valueOf(i1);
-            if (map.containsKey(key)) {
-                int val = map.get(key).intValue();
-                map.put(key, val + 1);
-            } else {
-                map.put(key, 1);
-            }
-            System.out.println(i1);
-        }
-        System.out.println(map);
-    }
 
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
+import com.yincheng.game.model.enums.AccountDetailType;
 import lombok.Data;
 
 import java.util.Date;
@@ -44,6 +45,13 @@ public class Account {
     }
 
     public void increase(AccountDetail detail) {
+        // 是否是新用户奖励
+        if (AccountDetailType.GIFT.getType().equals(detail.getType())) {
+            if (this.status != 0) {
+                throw new BusinessException(EmBusinessError.REWARD_REPEATED_ERROR);
+            }
+            this.status = 1;
+        }
         this.balance += detail.getCredit();
         this.updateTime = new Date();
         detail.setBalance(this.balance);
