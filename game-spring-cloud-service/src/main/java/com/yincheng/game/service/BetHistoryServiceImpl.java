@@ -202,7 +202,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         } else {
             description = "loss";
         }
-        lambdaUpdate().eq(BetHistory::getId, betHistory.getId()).eq(BetHistory::getStatus, 0)
+        boolean success = lambdaUpdate().eq(BetHistory::getId, betHistory.getId()).eq(BetHistory::getStatus, 0)
                 .set(BetHistory::getResult, String.valueOf(num))
                 .set(BetHistory::getStatus, 1)
                 .set(BetHistory::getUpdateTime, new Date())
@@ -210,7 +210,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 .set(BetHistory::getDescription, description)
                 .update();
 
-        if (rewardCount > 0) {
+        if (rewardCount > 0 && success) {
             // 更新账户余额
             AccountDetail detail = AccountDetail.valueOf(betHistory.getUserId(), reward, AccountDetailType.REWARD);
             Account account = accountService.betReward(detail);

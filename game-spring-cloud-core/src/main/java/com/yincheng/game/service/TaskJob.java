@@ -43,7 +43,7 @@ public class TaskJob {
         }
     }*/
 
-    @Scheduled(cron = "0/30 * * * * ?")
+    @Scheduled(cron = "30 * * * * ?")
     public void noSuccessBet() {
         IPage<BetHistory> page = betHistoryService.lambdaQuery().eq(BetHistory::getStatus, 0).page(new Page<>(0, 100, false));
         Map<String, Task> map = new HashMap<>(60);
