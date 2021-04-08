@@ -58,7 +58,7 @@ public class GameJob extends QuartzJobBean {
      * 执行任务
      */
     public void run(GameFlow gameFlow, Date nextExecuteTime) {
-        logger.info("开始执行任务{}", gameFlow.getName());
+        logger.info("开始执行任务{}", gameFlow);
         GameJobContext context;
         Task task = new Task();
         task.setGameId(gameFlow.getId());
