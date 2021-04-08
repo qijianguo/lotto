@@ -6,15 +6,11 @@ package com.yincheng.game.common.exception;
 public enum EmBusinessError implements CommonError {
 
     // 10000开头是通用错误类型,
-    UNKNOW_ERROR(10001, "请求失败，请重试"),
-    SYSTEM_BUSY(10002, "系统繁忙，请重试"),
-    RESOURCE_NOT_FOUND(10003, "未查询到记录"),
-    DATE_FORMAT_ERROR(10004, "日期格式不正确"),
-    ACCESS_DENIED(10005, "用户状态异常"),
-    REPEAT_COMMIT_ERROR(10006, "请不要重复提交哦"),
-    TIME_ERROR(10007, "系统时间异常，请重新设置"),
-    SIGN_ERROR(10010, "Sign error."),
-    PARAMETER_ERROR(11000, "Params error."),
+    UNKNOW_ERROR(10001, "System error, try again later."),
+    SYSTEM_BUSY(10002, "System busy, try again later."),
+    DATE_FORMAT_ERROR(10003, "Date format error."),
+    REPEAT_COMMIT_ERROR(10004, "Resubmit error."),
+    PARAMETER_ERROR(10005, "Params error."),
 
     // USER
     /* 20000开头是用户模块错误码 */
