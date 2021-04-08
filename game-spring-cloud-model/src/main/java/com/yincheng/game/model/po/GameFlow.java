@@ -58,7 +58,7 @@ public class GameFlow {
     @TableField(exist = false)
     private Long tempPeriod;
 
-    public void initPeriod() {
+    public synchronized void initPeriod() {
         Date date = TimeUtils.convertLocalDate2Date(LocalDate.now());
         long todayStartPeriod = Long.parseLong(TimeUtils.convertDate2String(date, TimeUtils.YYYYHHMM) + "0001");
         if (nextPeriod != null && nextPeriod != -1) {
