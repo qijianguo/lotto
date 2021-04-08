@@ -66,7 +66,7 @@ public class GameJob extends QuartzJobBean {
         task.setEndTime(nextExecuteTime);
         task.setPeriod(gameFlow.getTempPeriod());
         try {
-            taskService.save(task);
+            taskService.saveTask(task);
             context = GameJobContext.create(gameFlow.getId(), task);
             GameContextHolder.set(context);
             contextMap.put(task.getId(), context);

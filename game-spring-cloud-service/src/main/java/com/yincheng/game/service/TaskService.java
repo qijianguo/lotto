@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface TaskService extends IService<Task> {
 
+    void saveTask(Task task);
+
     Task getByGamePeriod(int gameId, long period);
 
     void updateResult(String gameType, Task task);

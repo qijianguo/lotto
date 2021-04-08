@@ -9,13 +9,10 @@ import com.yincheng.game.model.enums.GameType;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.PeriodReq;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,8 +22,13 @@ import java.util.List;
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
 
-    @Autowired
-    private BetStatService betStatService;
+    @Override
+    public void saveTask(Task task) {
+        Task byGamePeriod = getByGamePeriod(task.getGameId(), task.getPeriod());
+        if (byGamePeriod == null) {
+            save(task);
+        }
+    }
 
     @Override
     public Task getByGamePeriod(int gameId, long period) {
