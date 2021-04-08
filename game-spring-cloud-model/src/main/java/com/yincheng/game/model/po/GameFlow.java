@@ -54,19 +54,9 @@ public class GameFlow {
     /** 游戏创建时间 */
     private Date createTime;
 
-    /** 上次执行时间 */
-    @TableField(exist = false)
-    private Date lastExecuteTime;
-
-    /** 下次执行时间 */
-    @TableField(exist = false)
-    private Date nextExecuteTime;
-
     /** 游戏期号 */
     @TableField(exist = false)
     private Long tempPeriod;
-    @TableField(exist = false)
-    private Integer threads;
 
     public void initPeriod() {
         Date date = TimeUtils.convertLocalDate2Date(LocalDate.now());

@@ -84,6 +84,7 @@ public class GameJob extends QuartzJobBean {
         } finally {
             gameFlow.setNextPeriod(task.getPeriod());
             gameFlow.setTempPeriod(task.getPeriod() + 1);
+            gameFlow.setUpdateTime(new Date());
             gameFlowService.updateById(gameFlow);
             contextMap.remove(task.getId());
             GameContextHolder.remove();
