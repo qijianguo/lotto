@@ -76,12 +76,11 @@ public class Game {
                 gameFlow.setPeriod(gameFlow.getNextPeriod());
             }
         }
-
+        // 通过ws发送给客户端
+        TaskWsResp resp = new TaskWsResp(period, context.getNextTask());
+        webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
         Task curr = period;
         new Thread(() -> {
-            // 通过ws发送给客户端
-            TaskWsResp resp = new TaskWsResp(curr, context.getNextTask());
-            webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
             if (curr != null) {
                 betHistoryService.settle(gameFlow.getName(), curr, true);
             }
