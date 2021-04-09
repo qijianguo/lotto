@@ -4,7 +4,6 @@ import com.yincheng.game.context.GameContext;
 import com.yincheng.game.job.GameJobManager;
 import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.service.*;
-import com.yincheng.game.job.GameJobContext;
 import com.yincheng.game.listener.GameListener;
 import com.yincheng.game.model.po.GameFlow;
 import com.yincheng.game.model.po.Task;
@@ -44,7 +43,6 @@ public class Game {
     private GameJobManager gameJobManager;
     @PostConstruct
     private void init() {
-        //executorInstance = new SpiderFlowThreadPoolExecutor(16);
         // 初始化游戏列表
         List<GameFlow> gameFlowList = gameFlowService.getAllEnabled();
         if (CollectionUtils.isEmpty(gameFlowList)) {
@@ -54,17 +52,8 @@ public class Game {
         gameFlowList.forEach(game -> gameJobManager.addJob(game));
     }
 
-    public void run(GameFlow gameFlow, GameJobContext context) {
-        flowNoticeService.sendFlowNotice();
-        run(gameFlow, context, new HashMap<>(6));
-        flowNoticeService.sendFlowNotice();
-    }
-
-    private void run(GameFlow gameFlow, GameContext context, Map<String, Object> variables) {
+    public void run(GameFlow gameFlow, GameContext context) {
         // 触发监听器
-        if (!CollectionUtils.isEmpty(listeners)) {
-            listeners.forEach(listener -> listener.beforeStart(context));
-        }
         Long prevPeriod = Optional.ofNullable(gameFlow.getNextPeriod()).orElse(-1L);
         Task period = null;
         // 计算上一期的结果
@@ -79,12 +68,7 @@ public class Game {
         // 通过ws发送给客户端
         TaskWsResp resp = new TaskWsResp(period, context.getNextTask());
         webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
-        Task curr = period;
-        new Thread(() -> {
-            if (curr != null) {
-                betHistoryService.settle(gameFlow.getName(), curr, true);
-            }
-        });
+        betHistoryService.settle(gameFlow.getName(), period, true);
     }
 
 }

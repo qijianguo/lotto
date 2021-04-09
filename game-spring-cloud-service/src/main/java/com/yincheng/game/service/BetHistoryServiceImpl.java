@@ -80,7 +80,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         }
         // 多线程执行
         CountDownLatch latch = new CountDownLatch(list.size());
-        Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
+        /*Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
         groupByUser.keySet().forEach(userId -> ThreadPoolUtils.execute(() -> {
             List<BetHistory> userBetList = groupByUser.get(userId);
             Account account = settle(userBetList, result);
@@ -89,15 +89,15 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
             }
             latch.countDown();
-        }));
-        /*list.forEach(bet -> ThreadPoolUtils.execute(() -> {
+        }));*/
+        list.forEach(bet -> ThreadPoolUtils.execute(() -> {
             Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
                 notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
             }
             latch.countDown();
-        }));*/
+        }));
         try {
             latch.await();
         } catch (InterruptedException e) {
