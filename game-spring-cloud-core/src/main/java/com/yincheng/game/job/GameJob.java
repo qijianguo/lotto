@@ -73,7 +73,7 @@ public class GameJob extends QuartzJobBean {
             game.run(gameFlow, context);
             logger.info("执行任务{}完毕，下次执行时间：{}", gameFlow.getName(), nextExecuteTime == null ? null : DateFormatUtils.format(nextExecuteTime, "yyyy-MM-dd HH:mm:ss"));
         } catch (Exception e) {
-            logger.error("执行任务{}出错", gameFlow.getName(), e);
+            logger.error(gameFlow.getName() + e.getMessage(), e);
             PeriodReq req = new PeriodReq();
             req.setGameId(gameFlow.getId());
             req.setStatus(0);
