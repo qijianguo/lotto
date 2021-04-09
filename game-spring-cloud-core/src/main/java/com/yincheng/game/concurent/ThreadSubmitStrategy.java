@@ -1,6 +1,6 @@
 package com.yincheng.game.concurent;
 
-import com.yincheng.game.model.GameNode;
+import com.yincheng.game.model.po.BetHistory;
 
 import java.util.Comparator;
 
@@ -9,12 +9,12 @@ import java.util.Comparator;
  */
 public interface ThreadSubmitStrategy {
 
-    Comparator<GameNode> comparator();
+    Comparator<BetHistory> comparator();
 
-    void add(GameFutureTask<?> task);
+    void add(SpiderFutureTask<?> task);
 
     boolean isEmpty();
 
-    GameFutureTask<?> get();
+    SpiderFutureTask<?> get();
 
 }

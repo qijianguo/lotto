@@ -44,6 +44,17 @@ public class Task {
         this.status = 1;
     }
 
+    public static Task initNext(GameFlow gameFlow, Date nextExecuteTime) {
+        Task next = new Task();
+        next.setGameId(gameFlow.getId());
+        next.setStartTime(new Date());
+        next.setEndTime(nextExecuteTime);
+        next.setPeriod(gameFlow.getTempPeriod());
+        next.setCreateTime(new Date());
+        next.setUpdateTime(next.getCreateTime());
+        return next;
+    }
+
     @Override
     public String toString() {
         return "Task{" +

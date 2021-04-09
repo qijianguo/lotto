@@ -42,21 +42,23 @@ public class GameFlow {
     /** 执行周期表达式 */
     private String cron;
 
-    private Long period;
+    // FIXME 更改字段名
+    /** 上一期 */
+    private Long period;// prev
+    /** 当前期 */
+    private Long nextPeriod;    // curr
+    /** 下一期 */
+    @TableField(exist = false)
+    private Long tempPeriod;    // next
 
     private String result;
 
-    /** 下一期的开奖 */
-    private Long nextPeriod;
+
 
     private Date updateTime;
 
     /** 游戏创建时间 */
     private Date createTime;
-
-    /** 游戏期号 */
-    @TableField(exist = false)
-    private Long tempPeriod;
 
     public void initPeriod() {
         Date date = TimeUtils.convertLocalDate2Date(LocalDate.now());

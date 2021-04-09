@@ -1,5 +1,6 @@
 package com.yincheng.game;
 
+import com.yincheng.game.context.GameContext;
 import com.yincheng.game.job.GameJobManager;
 import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.service.*;
@@ -41,9 +42,9 @@ public class Game {
     private GameFlowService gameFlowService;
     @Autowired
     private GameJobManager gameJobManager;
-
     @PostConstruct
     private void init() {
+        //executorInstance = new SpiderFlowThreadPoolExecutor(16);
         // 初始化游戏列表
         List<GameFlow> gameFlowList = gameFlowService.getAllEnabled();
         if (CollectionUtils.isEmpty(gameFlowList)) {
@@ -59,7 +60,7 @@ public class Game {
         flowNoticeService.sendFlowNotice();
     }
 
-    private void run(GameFlow gameFlow, GameJobContext context, Map<String, Object> variables) {
+    private void run(GameFlow gameFlow, GameContext context, Map<String, Object> variables) {
         // 触发监听器
         if (!CollectionUtils.isEmpty(listeners)) {
             listeners.forEach(listener -> listener.beforeStart(context));
@@ -75,12 +76,16 @@ public class Game {
                 gameFlow.setPeriod(gameFlow.getNextPeriod());
             }
         }
-        // 通过ws发送给客户端
-        TaskWsResp resp = new TaskWsResp(period, context.getNextTask());
-        webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
-        if (period != null) {
-            betHistoryService.settle(gameFlow.getName(), period, true);
-        }
+
+        Task curr = period;
+        new Thread(() -> {
+            // 通过ws发送给客户端
+            TaskWsResp resp = new TaskWsResp(curr, context.getNextTask());
+            webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
+            if (curr != null) {
+                betHistoryService.settle(gameFlow.getName(), curr, true);
+            }
+        });
     }
 
 }

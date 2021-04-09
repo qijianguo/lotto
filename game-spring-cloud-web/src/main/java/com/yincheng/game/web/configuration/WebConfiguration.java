@@ -43,8 +43,6 @@ public class WebConfiguration implements WebMvcConfigurer {
     private AuthenticationInterceptor authenticationInterceptor;
     @Autowired
     private CurrentUserMethodArgumentResolver currentUserMethodArgumentResolver;
-    @Value("${spring.profiles.active}")
-    private String environment;
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {

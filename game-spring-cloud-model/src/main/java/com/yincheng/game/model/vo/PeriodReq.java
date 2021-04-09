@@ -32,4 +32,11 @@ public class PeriodReq extends Page {
         return gameId != null;
     }
 
+    public static PeriodReq create(Integer gameId, Integer status) {
+        PeriodReq req = new PeriodReq();
+        req.setGameId(gameId);
+        req.setStatus(status);
+        return req;
+    }
+
 }

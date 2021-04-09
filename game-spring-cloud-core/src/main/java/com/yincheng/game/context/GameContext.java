@@ -1,8 +1,7 @@
 package com.yincheng.game.context;
 
-import com.yincheng.game.concurent.GameFlowThreadPoolExecutor.SubThreadPoolExecutor;
-import com.yincheng.game.model.GameNode;
-import com.yincheng.game.model.GameOutput;
+import com.yincheng.game.concurent.SpiderFlowThreadPoolExecutor.SubThreadPoolExecutor;
+import com.yincheng.game.model.po.Task;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -30,9 +29,11 @@ public class GameContext extends HashMap<String, Object> {
      */
     private volatile boolean running = true;
 
-    private GameNode gameNode;
-
     private String result;
+
+    private Task current;
+
+    private Task nextTask;
 
     /**
      * Future队列
@@ -75,14 +76,6 @@ public class GameContext extends HashMap<String, Object> {
         return futureQueue;
     }
 
-    public GameNode getGameNode() {
-        return gameNode;
-    }
-
-    public void setGameNode(GameNode gameNode) {
-        this.gameNode = gameNode;
-    }
-
     public String getResult() {
         return result;
     }
@@ -91,7 +84,21 @@ public class GameContext extends HashMap<String, Object> {
         this.result = result;
     }
 
-    //public <T>void addOutput(GameOutput<T> output) {}
+    public Task getCurrent() {
+        return current;
+    }
+
+    public void setCurrent(Task current) {
+        this.current = current;
+    }
+
+    public Task getNextTask() {
+        return nextTask;
+    }
+
+    public void setNextTask(Task nextTask) {
+        this.nextTask = nextTask;
+    }
 
     public void pause(int flowId, String event, String key, Object value) {}
 

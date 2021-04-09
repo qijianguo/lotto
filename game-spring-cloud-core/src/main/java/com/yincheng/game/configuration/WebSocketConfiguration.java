@@ -19,7 +19,7 @@ public class WebSocketConfiguration {
     }
 
     @Autowired
-    public void setSpider(Game game) {
+    public void setGame(Game game) {
         WebSocketEditorServer.game = game;
     }
 }

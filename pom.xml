@@ -517,6 +517,7 @@
         <module>game-spring-cloud-service</module>
         <module>game-spring-cloud-model</module>
         <module>game-spring-cloud-job</module>
+        <module>game-spring-cloud-config</module>
     </modules>
     <!--
         SpringBoot 的 Maven 插件, 能够以 Maven 的方式为应用提供 SpringBoot 的支持，可以将

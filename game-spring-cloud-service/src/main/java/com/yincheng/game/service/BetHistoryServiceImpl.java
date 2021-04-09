@@ -20,7 +20,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,6 +46,15 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     private WebSocketService webSocketService;
     @Autowired
     private NotificationService notificationService;
+
+    @Override
+    public void settleAndNotice(String game, Task current, Task next) {
+        TaskWsResp resp = new TaskWsResp(current, next);
+        webSocketService.send(Destination.gameResult(game), resp);
+        if (current != null) {
+            betHistoryService.settle(game, current, true);
+        }
+    }
 
     @Override
     public void settle(Task task) {

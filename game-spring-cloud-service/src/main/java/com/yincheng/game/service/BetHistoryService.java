@@ -8,6 +8,7 @@ import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.vo.BetAddReq;
 import com.yincheng.game.model.vo.BetReq;
+import com.yincheng.game.model.vo.TaskWsResp;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ import java.util.List;
  * @author qijianguo
  */
 public interface BetHistoryService extends IService<BetHistory> {
+
+    void settleAndNotice(String game, Task current, Task next);
 
     /**
      * 结算

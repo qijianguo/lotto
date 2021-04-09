@@ -60,34 +60,28 @@ public class GameJob extends QuartzJobBean {
     public void run(GameFlow gameFlow, Date nextExecuteTime) {
         logger.info("开始执行任务{}", gameFlow);
         GameJobContext context;
-        Task task = new Task();
-        task.setGameId(gameFlow.getId());
-        task.setStartTime(new Date());
-        task.setEndTime(nextExecuteTime);
-        task.setPeriod(gameFlow.getTempPeriod());
+        Task next = Task.initNext(gameFlow, nextExecuteTime);
         try {
-            taskService.saveTask(task);
-            context = GameJobContext.create(gameFlow.getId(), task);
+            taskService.saveTask(next);
+            context = GameJobContext.create(gameFlow.getId(), next);
             GameContextHolder.set(context);
-            contextMap.put(task.getId(), context);
+            contextMap.put(next.getId(), context);
             game.run(gameFlow, context);
             logger.info("执行任务{}完毕，下次执行时间：{}", gameFlow.getName(), nextExecuteTime == null ? null : DateFormatUtils.format(nextExecuteTime, "yyyy-MM-dd HH:mm:ss"));
         } catch (Exception e) {
             logger.error(gameFlow.getName() + e.getMessage(), e);
-            PeriodReq req = new PeriodReq();
-            req.setGameId(gameFlow.getId());
-            req.setStatus(0);
-            Task maxPeriod = taskService.getMaxPeriod(req);
+            Task maxPeriod = taskService.getMaxPeriod(PeriodReq.create(gameFlow.getId(), 0));
             if (maxPeriod != null) {
-                task = maxPeriod;
+                next = maxPeriod;
             }
         } finally {
-            gameFlow.setNextPeriod(task.getPeriod());
-            gameFlow.setTempPeriod(task.getPeriod() + 1);
+            gameFlow.setNextPeriod(next.getPeriod());
+            gameFlow.setTempPeriod(next.getPeriod() + 1);
             gameFlow.setUpdateTime(new Date());
             gameFlowService.updateById(gameFlow);
-            contextMap.remove(task.getId());
+            contextMap.remove(next.getId());
             GameContextHolder.remove();
+            logger.info("结束执行任务{}", gameFlow);
         }
     }
 
