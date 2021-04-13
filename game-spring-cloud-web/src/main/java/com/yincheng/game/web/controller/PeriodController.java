@@ -40,7 +40,7 @@ public class PeriodController {
         req.setGameId(gameId);
         req.setDesc("period");
         req.setSize(1);
-        req.setStatus(1);
+        req.setStatus(0);
         //List<Task> records = taskService.getPeriod(req);
         Task curr = taskService.getMaxPeriod(req);
         req.setStatus(1);
