@@ -6,7 +6,7 @@ import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.model.po.GameFlow;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.PeriodReq;
-import com.yincheng.game.model.vo.TaskWsResp;
+import com.yincheng.game.model.vo.RecentTaskResp;
 import com.yincheng.game.service.*;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.quartz.*;
@@ -95,7 +95,7 @@ public class GameFlowJob extends QuartzJobBean {
             }
         }
         // 通过ws发送给客户端
-        TaskWsResp resp = new TaskWsResp(period, context.getNextTask());
+        RecentTaskResp resp = new RecentTaskResp(period, context.getNextTask());
         webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
         taskJob.addTask(gameFlow, period);
     }

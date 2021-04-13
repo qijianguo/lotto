@@ -10,6 +10,7 @@ import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.BetResp;
 import com.yincheng.game.model.vo.PeriodReq;
 import com.yincheng.game.model.vo.TaskResp;
+import com.yincheng.game.model.vo.RecentTaskResp;
 import com.yincheng.game.service.TaskService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,9 +39,14 @@ public class PeriodController {
         PeriodReq req = new PeriodReq();
         req.setGameId(gameId);
         req.setDesc("period");
-        req.setSize(2);
-        List<Task> records = taskService.getPeriod(req);
-        return Result.success(convert(records));
+        req.setSize(1);
+        req.setStatus(1);
+        //List<Task> records = taskService.getPeriod(req);
+        Task curr = taskService.getMaxPeriod(req);
+        req.setStatus(1);
+        Task prev = taskService.getMaxPeriod(req);
+        RecentTaskResp resp = new RecentTaskResp(prev, curr);
+        return Result.success(resp);
     }
 
     @ApiOperation("往期列表")

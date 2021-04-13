@@ -49,7 +49,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
 
     @Override
     public void settleAndNotice(String game, Task current, Task next) {
-        TaskWsResp resp = new TaskWsResp(current, next);
+        RecentTaskResp resp = new RecentTaskResp(current, next);
         webSocketService.send(Destination.gameResult(game), resp);
         if (current != null) {
             betHistoryService.settle(game, current, true);

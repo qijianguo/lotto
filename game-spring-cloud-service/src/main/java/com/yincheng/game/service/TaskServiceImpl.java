@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,7 +70,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         req.setSearchCount(false);
         IPage<Task> page = lambdaQuery().eq(Task::getGameId, req.getGameId())
                 .eq(Task::getStatus, req.getStatus())
-                .orderByDesc(Task::getPeriod)
                 .page(req);
         List<Task> records = page.getRecords();
         if (!CollectionUtils.isEmpty(records)) {
@@ -105,7 +105,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         List<Integer> integers = RandomUtils.secureRandomNums(length);
         Collections.shuffle(nums);
         return nums;*/
-        return RandomUtils.secureRandomNums(length);
+        List<Integer> integers = RandomUtils.secureRandomNums(length);
+        Collections.shuffle(integers);
+        return integers;
     }
 
 
