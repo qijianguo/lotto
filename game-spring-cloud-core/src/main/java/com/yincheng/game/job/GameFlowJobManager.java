@@ -37,12 +37,14 @@ public class GameFlowJobManager {
             logger.warn("game list is empty!");
             return;
         }
-        gameFlowList.forEach(game -> {
-            Map<String, GameFlow> map = new HashMap<>(1);
-            map.put(MAP_KEY_GAME, game);
-            String jobName = jobName(game.getId());
-            quartzService.addJob(GameFlowJob.class, jobName, jobName, game.getCron(), map);
-        });
+        gameFlowList.forEach(game -> addJob(game));
+    }
+
+    public void addJob(GameFlow game) {
+        Map<String, GameFlow> map = new HashMap<>(1);
+        map.put(MAP_KEY_GAME, game);
+        String jobName = jobName(game.getId());
+        quartzService.addJob(GameFlowJob.class, jobName, jobName, game.getCron(), map);
     }
 
 }

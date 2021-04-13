@@ -76,7 +76,7 @@ public class GameFlowJob extends QuartzJobBean {
             gameFlowService.updateById(gameFlow);
             contextMap.remove(next.getId());
             GameContextHolder.remove();
-            logger.info("结束执行任务{}", gameFlow);
+            logger.info("结束执行任务{}", gameFlow.getName());
         }
     }
 

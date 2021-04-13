@@ -11,6 +11,7 @@ public enum EmBusinessError implements CommonError {
     DATE_FORMAT_ERROR(10003, "Date format error."),
     REPEAT_COMMIT_ERROR(10004, "Resubmit error."),
     PARAMETER_ERROR(10005, "Params error."),
+    SOURCE_NOT_FOUND(10006, "Source not found error."),
 
     // USER
     /* 20000开头是用户模块错误码 */

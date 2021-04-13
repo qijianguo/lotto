@@ -118,6 +118,19 @@ public class QuartzService {
         }
     }
 
+    public boolean exists(String jobName, String jobGroupName) {
+        boolean exists = false;
+        try {
+            TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroupName);
+            CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+            if (trigger != null) {
+                exists = true;
+            }
+        } catch (SchedulerException ignore) {
+        }
+        return exists;
+    }
+
     /**
      * 删除任务一个job
      *
