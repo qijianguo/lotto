@@ -38,7 +38,6 @@ public class PeriodController {
     public Result current(Integer gameId) {
         PeriodReq req = new PeriodReq();
         req.setGameId(gameId);
-        req.setDesc("period");
         req.setSize(1);
         req.setStatus(0);
         //List<Task> records = taskService.getPeriod(req);

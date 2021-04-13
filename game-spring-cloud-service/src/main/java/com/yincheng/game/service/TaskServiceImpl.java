@@ -70,6 +70,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         req.setSearchCount(false);
         IPage<Task> page = lambdaQuery().eq(Task::getGameId, req.getGameId())
                 .eq(Task::getStatus, req.getStatus())
+                .orderByDesc(Task::getPeriod)
                 .page(req);
         List<Task> records = page.getRecords();
         if (!CollectionUtils.isEmpty(records)) {
