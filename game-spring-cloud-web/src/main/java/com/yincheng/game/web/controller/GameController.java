@@ -1,22 +1,15 @@
 package com.yincheng.game.web.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.yincheng.game.common.exception.BusinessException;
-import com.yincheng.game.common.exception.EmBusinessError;
-import com.yincheng.game.job.GameJobManager;
+import com.yincheng.game.job.Constants;
 import com.yincheng.game.model.Result;
-import com.yincheng.game.model.anno.Authentication;
-import com.yincheng.game.model.enums.Role;
 import com.yincheng.game.model.po.GameConfig;
 import com.yincheng.game.model.po.GameFlow;
-import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.*;
 import com.yincheng.game.service.GameConfigService;
 import com.yincheng.game.service.GameFlowService;
-import com.yincheng.game.service.TaskService;
+import com.yincheng.game.service.QuartzService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +29,7 @@ public class GameController {
     @Autowired
     private GameConfigService gameConfigService;
     @Autowired
-    private GameJobManager gameJobManager;
+    private QuartzService quartzService;
 
     @ApiOperation(value = "游戏列表", response = GameResp.class)
     @GetMapping("/list")
@@ -68,16 +61,26 @@ public class GameController {
     }
 
     @ApiOperation(value = "停止游戏")
-    @DeleteMapping
+    @PutMapping("/pause")
     public Result pause(Integer gameId) {
-        gameJobManager.pauseJob(gameId);
+        String jobName = Constants.Game.jobName(gameId);
+        quartzService.pauseJob(jobName, jobName);
         return Result.success();
     }
 
     @ApiOperation(value = "恢复游戏")
-    @PutMapping
+    @PutMapping("/resume")
     public Result resume(Integer gameId) {
-        gameJobManager.resume(gameId);
+        String jobName = Constants.Game.jobName(gameId);
+        quartzService.resumeJob(jobName, jobName);
+        return Result.success();
+    }
+
+    @ApiOperation(value = "停止游戏")
+    @PutMapping("/stop")
+    public Result stop(Integer gameId) {
+        String jobName = Constants.Game.jobName(gameId);
+        quartzService.deleteJob(jobName, jobName);
         return Result.success();
     }
 

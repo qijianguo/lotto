@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.yincheng.game.common.util.TimeUtils;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -16,7 +17,9 @@ import java.util.Date;
  */
 @TableName("t_game")
 @Data
-public class GameFlow {
+public class GameFlow implements Serializable {
+
+    private static final long serialVersionUID = -1L;
 
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -44,14 +47,15 @@ public class GameFlow {
 
     // FIXME 更改字段名
     /** 上一期 */
-    private Long period;// prev
-    /** 当前期 */
-    private Long nextPeriod;    // curr
-    /** 下一期 */
-    @TableField(exist = false)
-    private Long tempPeriod;    // next
-
+    private Long prevPeriod;
     private String result;
+    private Integer sum;
+    /** 当前期 */
+    //@TableField(exist = false)
+    private Long currPeriod;
+    /** 下一期 */
+    //@TableField(exist = false)
+    private Long nextPeriod;
 
 
 
@@ -63,17 +67,17 @@ public class GameFlow {
     public void initPeriod() {
         Date date = TimeUtils.convertLocalDate2Date(LocalDate.now());
         long todayStartPeriod = Long.parseLong(TimeUtils.convertDate2String(date, TimeUtils.YYYYHHMM) + "0001");
-        if (nextPeriod != null && nextPeriod != -1) {
+        if (currPeriod != null && currPeriod != -1) {
             // 昨天的
-            if (todayStartPeriod > nextPeriod) {
-                tempPeriod = todayStartPeriod;
+            if (todayStartPeriod > currPeriod) {
+                nextPeriod = todayStartPeriod;
             } else {
                 // 今天
-                tempPeriod = nextPeriod + 1;
+                nextPeriod = currPeriod + 1;
             }
         } else {
-            nextPeriod = -1L;
-            tempPeriod = todayStartPeriod;
+            currPeriod = -1L;
+            nextPeriod = todayStartPeriod;
         }
 
     }

@@ -1,8 +1,5 @@
 package com.yincheng.game.configuration;
 
-import com.yincheng.game.Game;
-import com.yincheng.game.web.websocket.WebSocketEditorServer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
@@ -18,8 +15,8 @@ public class WebSocketConfiguration {
         return new ServerEndpointExporter();
     }
 
-    @Autowired
+    /*@Autowired
     public void setGame(Game game) {
         WebSocketEditorServer.game = game;
-    }
+    }*/
 }

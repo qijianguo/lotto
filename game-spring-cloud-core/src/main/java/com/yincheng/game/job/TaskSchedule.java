@@ -1,17 +1,16 @@
-package com.yincheng.game.service;
+package com.yincheng.game.job;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yincheng.game.model.po.BetHistory;
 import com.yincheng.game.model.po.Task;
-import com.yincheng.game.model.vo.PeriodReq;
-import org.quartz.DateBuilder;
+import com.yincheng.game.service.BetHistoryService;
+import com.yincheng.game.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,9 +19,9 @@ import java.util.stream.Collectors;
  * @author qijianguo
  */
 @Component
-public class TaskJob {
+public class TaskSchedule {
 
-    private static Logger logger = LoggerFactory.getLogger(TaskJob.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskSchedule.class);
 
     @Autowired
     private TaskService taskService;

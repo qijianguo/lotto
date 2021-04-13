@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -13,7 +14,9 @@ import java.util.Date;
  */
 @TableName("t_game_task")
 @Data
-public class Task {
+public class Task implements Serializable {
+
+    private static final long serialVersionUID = -1L;
 
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -49,7 +52,7 @@ public class Task {
         next.setGameId(gameFlow.getId());
         next.setStartTime(new Date());
         next.setEndTime(nextExecuteTime);
-        next.setPeriod(gameFlow.getTempPeriod());
+        next.setPeriod(gameFlow.getNextPeriod());
         next.setCreateTime(new Date());
         next.setUpdateTime(next.getCreateTime());
         return next;
