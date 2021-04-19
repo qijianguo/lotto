@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,13 +89,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         // 给出结果
         switch (match) {
             case _3D:
-                length = 3;
+                length = 3 * 2;
                 break;
             case _4D:
-                length = 4;
+                length = 4 * 2;
                 break;
             case _5D:
-                length = 5;
+                length = 5 * 2;
                 break;
             default:
         }
@@ -103,13 +104,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             Integer randomNum = RandomUtils.secureRandomNum();
             nums.add(randomNum);
         }
-        List<Integer> integers = RandomUtils.secureRandomNums(length);
         Collections.shuffle(nums);
-        return nums;*/
-        List<Integer> integers = RandomUtils.secureRandomNums(length);
-        Collections.shuffle(integers);
-        return integers;
+        return nums.subList(0, length / 2);*/
+        List<Integer> nums = RandomUtils.secureRandomNums(length);
+        Collections.shuffle(nums);
+        return nums.subList(0, length / 2);
     }
-
 
 }

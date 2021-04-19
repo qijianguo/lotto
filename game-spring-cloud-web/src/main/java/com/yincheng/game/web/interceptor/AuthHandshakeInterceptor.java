@@ -36,7 +36,6 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
                                    WebSocketHandler webSocketHandler, Map<String, Object> attributes) throws Exception {
         if (request instanceof ServletServerHttpRequest) {
             HttpSession session = ((ServletServerHttpRequest) request).getServletRequest().getSession();
-            System.out.println("WEBSOCKET:===========" + session.getId());
             // TODO 校验请求参数合法性
             String token = ((ServletServerHttpRequest) request).getServletRequest().getParameter(Constants.TOKEN);
             if (!validate()) {

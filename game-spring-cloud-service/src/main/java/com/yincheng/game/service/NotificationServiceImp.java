@@ -24,10 +24,11 @@ public class NotificationServiceImp implements NotificationService {
     private UserService userService;
 
     @Override
-    public void reward(NotificationReq req) {
+    public User reward(NotificationReq req) {
         Notification notification = new Notification();
+        User user = null;
         if (req.getUserId() != null) {
-            User user = userService.getById(req.getUserId());
+            user = userService.getById(req.getUserId());
             notification.setCover(user.getAvatar());
             notification.setTitle(RegexUtils.replaceWithStar(user.getNickName()));
             notification.setDescription(req.getDescription());
@@ -35,13 +36,15 @@ public class NotificationServiceImp implements NotificationService {
         }
         String key = RedisKeys.notice("reward");
         save(key, 100, notification);
+        return user;
     }
 
     @Override
-    public void withdraw(NotificationReq req) {
+    public User withdraw(NotificationReq req) {
         Notification notification = new Notification();
+        User user = null;
         if (req.getUserId() != null) {
-            User user = userService.getById(req.getUserId());
+            user = userService.getById(req.getUserId());
             notification.setCover(user.getAvatar());
             notification.setTitle(RegexUtils.replaceWithStar(user.getNickName()));
             notification.setDescription("withdraw Rp" + req.getDescription());
@@ -49,6 +52,7 @@ public class NotificationServiceImp implements NotificationService {
         }
         String key = RedisKeys.notice("withdraw");
         save(key, 100, notification);
+        return user;
     }
 
     @Override

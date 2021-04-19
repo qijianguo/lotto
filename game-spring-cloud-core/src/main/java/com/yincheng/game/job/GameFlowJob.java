@@ -83,21 +83,21 @@ public class GameFlowJob extends QuartzJobBean {
     public void run(GameFlow gameFlow, GameContext context) {
         // 触发监听器
         Long prevPeriod = Optional.ofNullable(gameFlow.getCurrPeriod()).orElse(-1L);
-        Task period = null;
+        Task prevTask = null;
         // 计算上一期的结果
         if (prevPeriod != -1) {
-            period = taskService.getByGamePeriod(gameFlow.getId(), prevPeriod);
-            if (period != null && period.getStatus() == 0) {
-                taskService.updateResult(gameFlow.getType(), period);
-                gameFlow.setResult(period.getResult());
-                gameFlow.setSum(period.getSum());
+            prevTask = taskService.getByGamePeriod(gameFlow.getId(), prevPeriod);
+            if (prevTask != null && prevTask.getStatus() == 0) {
+                taskService.updateResult(gameFlow.getType(), prevTask);
+                gameFlow.setResult(prevTask.getResult());
+                gameFlow.setSum(prevTask.getSum());
                 gameFlow.setPrevPeriod(gameFlow.getCurrPeriod());
             }
         }
         // 通过ws发送给客户端
-        RecentTaskResp resp = new RecentTaskResp(period, context.getNextTask());
+        RecentTaskResp resp = new RecentTaskResp(prevTask, context.getNextTask());
         webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
-        taskJob.addTask(gameFlow, period);
+        taskJob.addTask(gameFlow, prevTask);
     }
 
 }

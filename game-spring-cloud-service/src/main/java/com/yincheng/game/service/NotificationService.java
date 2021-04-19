@@ -1,6 +1,7 @@
 package com.yincheng.game.service;
 
 import com.yincheng.game.model.po.Notification;
+import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.vo.NotificationReq;
 
 import java.util.List;
@@ -14,13 +15,13 @@ public interface NotificationService {
      * 获得奖励通知
      * @param req
      */
-    void reward(NotificationReq req);
+    User reward(NotificationReq req);
 
     /**
      * 提现通知
      * @param req
      */
-    void withdraw(NotificationReq req);
+    User withdraw(NotificationReq req);
 
     /**
      * 查询奖励通知

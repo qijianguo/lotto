@@ -41,7 +41,6 @@ public class HelloJob implements Job {
             try {
                 kv1 = context.getScheduler().getContext().get("k1");
             } catch (SchedulerException e) {
-                e.printStackTrace();
             }
             System.out.println(tv1+":"+tv2);
             System.out.println(jv1+":"+jv2);

@@ -1,5 +1,7 @@
 package com.yincheng.game.service;
 
+import com.yincheng.game.common.util.Lfu;
+import com.yincheng.game.common.util.Node;
 import com.yincheng.game.model.enums.Bet;
 import com.yincheng.game.model.vo.BetAddReq;
 import org.springframework.stereotype.Component;
@@ -13,12 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class BetStatService {
 
-    public volatile Map<String, Map<String, Integer>> statMap2 = new ConcurrentHashMap<>(16);
+    private volatile Map<String, Lfu> map = new ConcurrentHashMap(3);
 
     public void add(BetAddReq req) {
-        Set<Integer> nums = new HashSet<>();
+        List<Integer> nums = new ArrayList<>();
         if (req.isNumBet()) {
-            req.getBetNums().forEach(bet -> nums.add(bet));
+            nums.addAll(req.getBetNums());
         } else {
             List<Integer> list = new ArrayList<>();
             req.getBetHloe().forEach(bet -> {
@@ -36,31 +38,38 @@ public class BetStatService {
                         list.addAll(Arrays.asList(0,1,2,3,4));
                         break;
                 }
+                nums.addAll(list);
             });
         }
-        String periodKey = String.format("%d-%d", req.getGameId(), req.getPeriod());
-
-        synchronized (this) {
-            nums.forEach(num -> {
-                String targetKey = req.getTarget().toUpperCase() + num;
-                Map<String, Integer> targetMap;
-                int count = 0;
-                if (!statMap2.containsKey(periodKey)) {
-                    targetMap = new ConcurrentHashMap<>(10);
-                } else {
-                    targetMap = statMap2.get(periodKey);
-                    count = Optional.ofNullable(targetMap.get(targetKey)).orElse(0);
-                }
-                targetMap.put(targetKey, count + 1);
-                statMap2.put(periodKey, targetMap);
-                System.out.println(statMap2);
-            });
+        String key = key(req.getGameId(), req.getPeriod(), req.getTarget());
+        Lfu lfu = map.get(key);
+        if (lfu == null) {
+            lfu = new Lfu(10);
+            map.put(key, lfu);
         }
-
+        for (Integer num : nums) {
+            lfu.put(req.getTarget() + num, num);
+        }
     }
 
-    public String periodKey(Integer gameId, Long period) {
-        return String.format("%d-%d", gameId, period);
+    public Integer getMaxNum(Integer gameId, Long period, String target) {
+        String key = key(gameId, period, target);
+        Lfu lfu = map.get(key);
+        if (lfu == null) {
+            return -1;
+        }
+        Node min = lfu.getMinCountNode();
+        Node max = lfu.getMaxCountNode();
+        int i = Integer.parseInt(String.valueOf(min.getValue()));
+        int j = Integer.parseInt(String.valueOf(max.getValue()));
+        if (i == j) {
+            return -1;
+        }
+        return j;
+    }
+
+    public String key(Integer gameId, Long period, String target) {
+        return gameId + (period + target);
     }
 
 }

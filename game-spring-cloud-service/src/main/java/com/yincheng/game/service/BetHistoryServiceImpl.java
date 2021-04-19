@@ -94,7 +94,8 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
-                notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
+                User user = notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
+                webSocketService.send(Destination.rewardTopic(gameName.toLowerCase()), NoticeResp.init(user, account));
             }
             latch.countDown();
         }));

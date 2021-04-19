@@ -54,7 +54,6 @@ public class WebSocketSupport {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

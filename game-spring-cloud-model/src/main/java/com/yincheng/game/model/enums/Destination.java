@@ -9,20 +9,24 @@ public class Destination {
 
     private static final String QUEUE = "/queue/";
 
-    public static String topic(String gameType) {
+    private static String gameTopic(String gameType) {
         return TOPIC + gameType;
     }
 
-    public static String queue(String address) {
+    private static String queue(String address) {
         return QUEUE + address;
     }
 
     public static String gameResult(String game) {
-        return topic(game);
+        return gameTopic(game);
     }
 
     public static String account() {
         return queue("account");
+    }
+
+    public static String rewardTopic(String gameType) {
+        return TOPIC + gameType + "/reward";
     }
 
 }

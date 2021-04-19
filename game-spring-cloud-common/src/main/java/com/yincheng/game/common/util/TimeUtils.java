@@ -288,7 +288,6 @@ public class TimeUtils {
     public static List<LocalDate> getLatestWeek() {
         List<LocalDate> calendars = new ArrayList<>();
         LocalDate now = LocalDate.now();
-        System.out.println(7 - now.getDayOfWeek().getValue());
         LocalDate localDate = now.plusDays(7 - now.getDayOfWeek().getValue());
         for (int i = 13; i >= 0; i--) {
             calendars.add(localDate.minusDays(i));
