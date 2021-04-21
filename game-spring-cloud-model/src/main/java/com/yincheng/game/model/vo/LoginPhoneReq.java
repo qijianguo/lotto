@@ -1,5 +1,6 @@
 package com.yincheng.game.model.vo;
 
+import com.yincheng.game.model.anno.CacheParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,6 +13,7 @@ import lombok.Data;
 public class LoginPhoneReq {
 
     @ApiModelProperty(value = "手机号", required = true, dataType = "String")
+    @CacheParam
     private String phone;
 
     @ApiModelProperty(value = "CODE", required = true, dataType = "String")

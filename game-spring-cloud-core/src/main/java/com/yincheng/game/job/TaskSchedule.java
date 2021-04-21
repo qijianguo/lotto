@@ -44,7 +44,7 @@ public class TaskSchedule {
 
     @Scheduled(cron = "30 * * * * ?")
     public void noSuccessBet() {
-        IPage<BetHistory> page = betHistoryService.lambdaQuery().eq(BetHistory::getStatus, 0).page(new Page<>(0, 100, false));
+        IPage<BetHistory> page = betHistoryService.lambdaQuery().eq(BetHistory::getStatus, 0).page(new Page<>(1, 500, false));
         Map<String, Task> map = new HashMap<>(60);
         page.getRecords().forEach(bet -> {
             String key = bet.getGameId() + "-" + bet.getPeriod();
@@ -60,5 +60,6 @@ public class TaskSchedule {
                 betHistoryService.settle(bet, result);
             }
         });
+
     }
 }

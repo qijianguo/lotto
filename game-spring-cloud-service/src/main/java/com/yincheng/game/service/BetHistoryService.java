@@ -57,5 +57,7 @@ public interface BetHistoryService extends IService<BetHistory> {
      */
     IPage<BetHistory> list(User user, BetReq req);
 
+    Account saveInDb(BetHistory betHistory, Integer rewardCount, Integer betSize, Integer num);
+
 
 }

@@ -6,6 +6,7 @@ import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.model.Result;
 import com.yincheng.game.model.anno.Authentication;
+import com.yincheng.game.model.anno.CacheLock;
 import com.yincheng.game.model.anno.CurrentUser;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.enums.Role;
@@ -64,8 +65,9 @@ public class AccountController {
     @ApiOperation(value = "首次注册赠送积分", response = AccountResp.class)
     @PostMapping("/reward")
     @Authentication
+    @CacheLock(prefix = "account_reward")
     public Result giving(@ApiIgnore @CurrentUser User user) {
-        AccountDetail detail = AccountDetail.valueOf(user.getId(), 100000,  AccountDetailType.GIFT);
+        AccountDetail detail = AccountDetail.valueOf(user.getId(), 1000000,  AccountDetailType.GIFT);
         Account account = accountService.giving(detail);
         return Result.success(new AccountResp(account));
     }
@@ -90,6 +92,7 @@ public class AccountController {
     @ApiOperation(value = "申请提现", response = AccountResp.class)
     @PostMapping("/withdraw")
     @Authentication
+    @CacheLock(prefix = "account_withdraw")
     public Result withdraw(@ApiIgnore @CurrentUser User user, AccountWithdrawReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
@@ -102,6 +105,7 @@ public class AccountController {
     @ApiOperation(value = "审核提现申请(ADMIN)")
     @GetMapping("/withdraw/review")
     @Authentication(roles = Role.ADMIN)
+    @CacheLock(prefix = "account_withdraw_review")
     public Result reviewWithdraw(@ApiIgnore @CurrentUser User user, AccountWithdrawReviewReq req) {
         accountService.review(req);
         return Result.success();

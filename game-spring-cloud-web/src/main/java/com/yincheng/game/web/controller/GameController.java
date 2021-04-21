@@ -60,28 +60,4 @@ public class GameController {
         return Result.success();
     }
 
-    @ApiOperation(value = "停止游戏")
-    @PutMapping("/pause")
-    public Result pause(Integer gameId) {
-        String jobName = Constants.Game.jobName(gameId);
-        quartzService.pauseJob(jobName, jobName);
-        return Result.success();
-    }
-
-    @ApiOperation(value = "恢复游戏")
-    @PutMapping("/resume")
-    public Result resume(Integer gameId) {
-        String jobName = Constants.Game.jobName(gameId);
-        quartzService.resumeJob(jobName, jobName);
-        return Result.success();
-    }
-
-    @ApiOperation(value = "停止游戏")
-    @PutMapping("/stop")
-    public Result stop(Integer gameId) {
-        String jobName = Constants.Game.jobName(gameId);
-        quartzService.deleteJob(jobName, jobName);
-        return Result.success();
-    }
-
 }

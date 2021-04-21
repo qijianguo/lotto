@@ -3,6 +3,7 @@ package com.yincheng.game.web.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yincheng.game.model.anno.Authentication;
+import com.yincheng.game.model.anno.CacheLock;
 import com.yincheng.game.model.anno.CurrentUser;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.AccountDetail;
@@ -38,6 +39,7 @@ public class BetHistoryController {
     @ApiOperation(value = "下注", response = BetResp.class)
     @PostMapping
     @Authentication
+    @CacheLock(prefix = "bet_add")
     public Result add(@ApiIgnore @CurrentUser User user, BetAddReq req) {
         Account bet = betHistoryService.bet(user, req);
         BetResp resp = new BetResp();

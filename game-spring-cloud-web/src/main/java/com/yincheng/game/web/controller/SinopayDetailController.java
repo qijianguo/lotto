@@ -1,13 +1,10 @@
 package com.yincheng.game.web.controller;
 
-import com.yincheng.game.common.exception.BusinessException;
-import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.model.Result;
 import com.yincheng.game.model.anno.Authentication;
+import com.yincheng.game.model.anno.CacheLock;
+import com.yincheng.game.model.anno.CacheParam;
 import com.yincheng.game.model.anno.CurrentUser;
-import com.yincheng.game.model.enums.AccountDetailType;
-import com.yincheng.game.model.po.Account;
-import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.vo.*;
 import com.yincheng.game.service.SinopayDetailService;
@@ -38,6 +35,7 @@ public class SinopayDetailController {
     @ApiOperation(value = "充值积分", response = AccountResp.class)
     @PostMapping("/prepaid")
     @Authentication
+    @CacheLock(prefix = "sinopay_prepaid")
     public Result prepaid(@ApiIgnore @CurrentUser User user, AccountPrepaidReq req) {
         req.setUserId(user.getId());
         SpPreOrderResp order = sinopayDetailService.createOrder(req);
@@ -46,7 +44,8 @@ public class SinopayDetailController {
 
     @ApiOperation(value = "订单通知", response = Map.class)
     @PostMapping("/notify")
-    public Map orderNotify(HttpServletRequest request) {
+    @CacheLock(prefix = "sinopay_notify")
+    public Map orderNotify(@CacheParam HttpServletRequest request) {
         Enumeration<String> parameterNames = request.getParameterNames();
         Map<String, String> params = new HashMap<>(6);
         if (parameterNames.hasMoreElements()) {
@@ -59,16 +58,10 @@ public class SinopayDetailController {
     @ApiOperation(value = "订单确认", response = AccountResp.class)
     @PostMapping("/conform")
     @Authentication
+    @CacheLock(prefix = "sinopay_conform")
     public Result orderConform(AccountPrepaidConformReq req) {
         sinopayDetailService.conform(req);
         return Result.success();
     }
 
-    /*@ApiOperation(value = "申请提现", response = AccountResp.class)
-    @PostMapping("/withdraw")
-    @Authentication
-    public Result withdraw(@ApiIgnore @CurrentUser User user, AccountWithdrawReq req) {
-        Account withdraw = sinopayDetailService.withdraw(user, req);
-        return Result.success(new AccountResp(withdraw));
-    }*/
 }

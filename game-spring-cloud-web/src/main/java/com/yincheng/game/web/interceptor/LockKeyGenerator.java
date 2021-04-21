@@ -1,7 +1,8 @@
-package com.yincheng.game.service;
+package com.yincheng.game.web.interceptor;
 
 import com.yincheng.game.model.anno.CacheLock;
 import com.yincheng.game.model.anno.CacheParam;
+import com.yincheng.game.service.CacheKeyGenerator;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.util.ReflectionUtils;

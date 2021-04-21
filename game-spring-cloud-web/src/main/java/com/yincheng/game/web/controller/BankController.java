@@ -2,6 +2,7 @@ package com.yincheng.game.web.controller;
 
 import com.yincheng.game.model.Result;
 import com.yincheng.game.model.anno.Authentication;
+import com.yincheng.game.model.anno.CacheLock;
 import com.yincheng.game.model.anno.CurrentUser;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.po.Account;
@@ -35,9 +36,10 @@ public class BankController {
     @Autowired
     private UserBankService userBankService;
 
-    @ApiOperation(value = "添加银行卡", response = UserBank.class)
+    @ApiOperation(value = "添加银行卡", response = BankResp.class)
     @PostMapping
     @Authentication
+    @CacheLock(prefix = "bank_add")
     public Result add(@ApiIgnore @CurrentUser User user, BankAddReq req) {
         UserBank bank = userBankService.add(user, req);
         return Result.success(BankResp.create(bank));
@@ -46,6 +48,7 @@ public class BankController {
     @ApiOperation(value = "修改银行卡信息")
     @PutMapping
     @Authentication
+    @CacheLock(prefix = "bank_update")
     public Result update(@ApiIgnore @CurrentUser User user, BankUpdateReq req) {
         userBankService.update(req);
         return Result.success();

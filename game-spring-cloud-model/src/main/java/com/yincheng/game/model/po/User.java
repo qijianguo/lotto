@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.yincheng.game.model.anno.CacheParam;
 import com.yincheng.game.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = -8651750390690064653L;
 
     @TableId(type = IdType.AUTO)
+    @CacheParam
     private Integer id;
     /** 昵称 */
     private String nickName;

@@ -2,6 +2,7 @@ package com.yincheng.game.web.controller;
 
 import com.yincheng.game.model.Result;
 import com.yincheng.game.model.anno.Authentication;
+import com.yincheng.game.model.anno.CacheLock;
 import com.yincheng.game.model.anno.CurrentUser;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.vo.*;
@@ -30,6 +31,7 @@ public class LoginController {
 
     @ApiOperation(value = "Facebook登录/注册")
     @PostMapping("/login/facebook")
+    @CacheLock(prefix = "user_login_fb")
     public Result login(LoginFacebookReq req) {
         User user = loginService.login(req);
         return Result.success(new UserResp(user));
@@ -37,6 +39,7 @@ public class LoginController {
 
     @ApiOperation(value = "手机号登录/注册")
     @PostMapping("/login/phone")
+    @CacheLock(prefix = "user_login_fb")
     public Result login(LoginPhoneReq req) {
         User user = loginService.login(req);
         return Result.success(new UserResp(user));

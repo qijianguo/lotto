@@ -23,5 +23,9 @@ public class AccountDetailResp {
     private Date createTime;
     @ApiModelProperty(value = "更新时间", required = true, dataType = "Date")
     private Date updateTime;
+    @ApiModelProperty(value = "状态确认：充值/消费默认为1，提现默认为0", required = true, dataType = "Integer")
+    private Integer confirm;
+    @ApiModelProperty(value = "是否成功：1成功，0失败或待处理", required = true, dataType = "Date")
+    private Integer success;
 
 }

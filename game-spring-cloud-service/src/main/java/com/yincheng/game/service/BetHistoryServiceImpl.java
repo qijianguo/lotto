@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -80,18 +81,15 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         }
         // 多线程执行
         CountDownLatch latch = new CountDownLatch(list.size());
-        /*Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
+        Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
         groupByUser.keySet().forEach(userId -> ThreadPoolUtils.execute(() -> {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
             List<BetHistory> userBetList = groupByUser.get(userId);
             Account account = settle(userBetList, result);
-            if (notice && account != null) {
-                webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
-                notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
-            }
-            latch.countDown();
-        }));*/
-        list.forEach(bet -> ThreadPoolUtils.execute(() -> {
-            Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.accountQueue(), new RewardResponse(account));
                 User user = notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
@@ -99,18 +97,22 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             }
             latch.countDown();
         }));
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
-        }
+        /*list.forEach(bet -> ThreadPoolUtils.execute(() -> {
+            Account account = betHistoryService.settle(bet, result);
+            if (notice && account != null) {
+                webSocketService.send(String.valueOf(account.getUserId()), Destination.accountQueue(), new RewardResponse(account));
+                User user = notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
+                webSocketService.send(Destination.rewardTopic(gameName.toLowerCase()), NoticeResp.init(user, account));
+            }
+            latch.countDown();
+        }));*/
         logger.info("{} --> {} settle finished! time：{}", gameName, task, (System.currentTimeMillis() - start.getTime()) / 1000);
     }
 
     private Account settle(List<BetHistory> bets, List<Integer> result) {
         AtomicReference<Account> account = new AtomicReference<>(null);
         bets.forEach(bet -> {
-            Account acc = settle(bet, result, 3);
+            Account acc = settle(bet, result);
             if (acc != null) {
                 Account last = account.get();
                 if (last != null) {
@@ -122,18 +124,23 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         return account.get();
     }
 
-    private Account settle(BetHistory bet, List<Integer> result, Integer maxTryTimes) {
+    /*private Account settle(BetHistory bet, List<Integer> result, Integer maxTryTimes) {
         Account acc = null;
         try {
             acc = betHistoryService.settle(bet, result);
         } catch (Exception e) {
             logger.warn("try settle {}-{}-{} times = {} ", bet.getUserId(), bet.getGameId(), bet.getPeriod(), maxTryTimes);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException interruptedException) {
+                logger.error(interruptedException.getMessage(), interruptedException);
+            }
             if (maxTryTimes >= 0) {
                 settle(bet, result, maxTryTimes++);
             }
         }
         return acc;
-    }
+    }*/
 
     /**
      * 计算结果
@@ -142,7 +149,6 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
      * @return 用户账户积分
      */
     @Override
-    @Transactional(rollbackFor = BusinessException.class)
     public Account settle(BetHistory betHistory, List<Integer> result) {
         // 标的
         Bet.Target t = Bet.target().get(betHistory.getTarget().toUpperCase());
@@ -201,36 +207,77 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 throw e;
             }
         });
+
+        return betHistoryService.saveInDb(betHistory, totalCount.get(), betList.size(), num);
+    }
+
+    private Account trySaveInDb(BetHistory betHistory, Integer rewardCount, Integer betSize, Integer singleResult, Integer maxTryTimes) {
+        try {
+            return betHistoryService.saveInDb(betHistory, rewardCount, betSize, singleResult);
+        } catch (Exception e) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException interruptedException) {
+                logger.error(interruptedException.getMessage(), interruptedException);
+            }
+            if (maxTryTimes >= 0) {
+                maxTryTimes--;
+                return trySaveInDb(betHistory, rewardCount, betSize, singleResult, maxTryTimes);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = BusinessException.class)
+    public Account saveInDb(BetHistory betHistory, Integer rewardCount, Integer betSize, Integer singleResult) {
         int reward = 0;
         String description;
-        int rewardCount = totalCount.get();
         if (rewardCount > 0) {
             int credit = betHistory.getCredit() - (int)(betHistory.getCredit() * Double.parseDouble(betHistory.getFee()));
-            reward = (int) (credit / betList.size() * rewardCount * Double.parseDouble(betHistory.getOdds()));
+            reward = (int) (credit / betSize * rewardCount * Double.parseDouble(betHistory.getOdds()));
             description = "win";
         } else {
             description = "loss";
         }
-        boolean success = lambdaUpdate().eq(BetHistory::getId, betHistory.getId()).eq(BetHistory::getStatus, 0)
-                .set(BetHistory::getResult, String.valueOf(num))
+        boolean updated = lambdaUpdate().eq(BetHistory::getId, betHistory.getId()).eq(BetHistory::getStatus, 0)
+                .set(BetHistory::getResult, String.valueOf(singleResult))
                 .set(BetHistory::getStatus, 1)
                 .set(BetHistory::getUpdateTime, new Date())
                 .set(BetHistory::getReward, reward)
                 .set(BetHistory::getDescription, description)
                 .update();
-
-        if (rewardCount > 0 && success) {
-            // 更新账户余额
-            AccountDetail detail = AccountDetail.valueOf(betHistory.getUserId(), reward, AccountDetailType.REWARD);
-            Account account = accountService.betReward(detail);
-            account.setReward(reward);
-            return account;
+        String lockKey = USER_ACCOUNT_LOCK + betHistory.getUserId();
+        String value = UUID.randomUUID().toString();
+        if (rewardCount > 0 && updated) {
+            boolean success = redisLockHelper.lock(lockKey, value, 2, TimeUnit.SECONDS);
+            while (!success) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException interruptedException) {
+                    logger.error(interruptedException.getMessage(), interruptedException);
+                    throw new BusinessException(EmBusinessError.SYSTEM_BUSY);
+                }
+                success = redisLockHelper.lock(lockKey, value, 2, TimeUnit.SECONDS);
+            }
+            try {
+                // 更新账户余额
+                AccountDetail detail = AccountDetail.valueOf(betHistory.getUserId(), reward, AccountDetailType.REWARD);
+                Account account = accountService.betReward(detail);
+                account.setReward(reward);
+                return account;
+            } finally {
+                redisLockHelper.unlock(lockKey, value);
+            }
         }
         return null;
     }
 
     @Autowired
     private BetStatService betStatService;
+    @Autowired
+    private RedisLockHelper redisLockHelper;
+    private static final String USER_ACCOUNT_LOCK = "user_account:";
 
     @Override
     public Account bet(User user, BetAddReq req) {
@@ -274,6 +321,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         betHistoryService.save(betHistory);
         // TODO 下注统计
         //betStatService.add(req);
+
         return account;
     }
 
