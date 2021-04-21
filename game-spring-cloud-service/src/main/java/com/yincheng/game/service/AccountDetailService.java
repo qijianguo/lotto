@@ -28,5 +28,12 @@ public interface AccountDetailService extends IService<AccountDetail> {
      */
     List<AccountDetail> top(AccountDetailType type);
 
+    /**
+     * 是否存在指定类型的积分类型
+     * @param type
+     * @return
+     */
+    boolean exists(Integer userId, AccountDetailType type);
+
     IPage<AccountDetail> top(AccountDetailReq req);
 }

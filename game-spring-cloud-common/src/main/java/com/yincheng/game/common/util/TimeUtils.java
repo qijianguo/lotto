@@ -209,7 +209,11 @@ public class TimeUtils {
         return sec;
     }
 
-    public static String long2DateStr(long timestemp) {
+    public static Date long2DateStr(long timestemp) {
+        return new Date(timestemp / 1000 * 1000);
+    }
+
+    public static String long2Date(long timestemp) {
         return convertDate2DateString(new Date(timestemp / 1000 * 1000));
     }
 

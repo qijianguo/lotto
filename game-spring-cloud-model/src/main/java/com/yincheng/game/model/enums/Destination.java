@@ -5,28 +5,47 @@ package com.yincheng.game.model.enums;
  */
 public class Destination {
 
-    private static final String TOPIC = "/topic/";
+    private static final String TOPIC = "topic";
+    private static final String QUEUE = "queue";
 
-    private static final String QUEUE = "/queue/";
+    private static final String TOPIC_PREFIX = "/topic/";
 
-    private static String gameTopic(String gameType) {
-        return TOPIC + gameType;
+    private static final String QUEUE_PREFIX = "/queue/";
+
+    private static String destination(String type, String address) {
+        switch (type) {
+            case QUEUE:
+                return QUEUE_PREFIX + address;
+            case TOPIC:
+                return TOPIC_PREFIX + address;
+        }
+        return null;
     }
 
-    private static String queue(String address) {
-        return QUEUE + address;
+    /**
+     * 广播 TOPIC：开奖结果
+     * @param game 游戏名
+     * @return
+     */
+    public static String resultTopic(String game) {
+        return destination(TOPIC, game);
     }
 
-    public static String gameResult(String game) {
-        return gameTopic(game);
+    /**
+     * 一对一 QUEUE：账户余额
+     * @return
+     */
+    public static String accountQueue() {
+        return destination(QUEUE, "account");
     }
 
-    public static String account() {
-        return queue("account");
-    }
-
-    public static String rewardTopic(String gameType) {
-        return TOPIC + gameType + "/reward";
+    /**
+     * 广播 TOPIC：开奖结果
+     * @param game 游戏名
+     * @return
+     */
+    public static String rewardTopic(String game) {
+        return destination(TOPIC, game + "/reward");
     }
 
 }

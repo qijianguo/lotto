@@ -21,7 +21,7 @@ public class AccountDetail {
     private Integer id;
     /** 用户ID */
     private Integer userId;
-    /** 类型：1充值，2消费，3提现 4赠送，5中奖，-1 其他 */
+    /** 类型：1充值，2消费，3提现 4赠送，5中奖，6退回 -1 其他 */
     private Integer type;
     /** 余额 */
     private Integer balance;
@@ -31,7 +31,7 @@ public class AccountDetail {
     private Integer confirm;
     /**
      * 是否成功：1成功，0失败或待处理
-     * 充值/消费默认success=1 提现默认为0
+     * 赠送/消费/退回默认success=1 充值/提现默认为0
      * 提现转出条件必须为confirm=1 & success=0才允许
      */
     private Integer success;

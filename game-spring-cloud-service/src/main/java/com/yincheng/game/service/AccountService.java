@@ -3,6 +3,8 @@ package com.yincheng.game.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.AccountDetail;
+import com.yincheng.game.model.vo.AccountPrepaidReq;
+import com.yincheng.game.model.vo.AccountWithdrawReviewReq;
 
 /**
  * @author qijianguo
@@ -51,6 +53,13 @@ public interface AccountService extends IService<Account> {
      */
     Account giving(AccountDetail detail);
 
+    /**
+     * 退回
+     * @param detail
+     * @return
+     */
+    Account returned(AccountDetail detail);
+
     Account increase(AccountDetail detail);
 
     Account decrease(AccountDetail detail);
@@ -58,5 +67,11 @@ public interface AccountService extends IService<Account> {
     Account increaseRedis(AccountDetail detail);
 
     Account decreaseRedis(AccountDetail detail);
+
+    /**
+     * 提现审核
+     * @param req
+     */
+    void review(AccountWithdrawReviewReq req);
 
 }

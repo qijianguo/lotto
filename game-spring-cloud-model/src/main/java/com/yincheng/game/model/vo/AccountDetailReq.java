@@ -12,7 +12,7 @@ import lombok.Data;
 @ApiModel(value = "账户查询")
 public class AccountDetailReq extends Page {
 
-    @ApiModelProperty(value = "类型：1充值，2消费，3提现 4赠送，5中奖，-1 其他", required = true, dataType = "String")
+    @ApiModelProperty(value = "类型：1充值，2消费，3提现 4赠送，5中奖，6退回，-1 其他", required = true, dataType = "String")
     private Integer type;
 
     public boolean validate() {

@@ -9,11 +9,14 @@ import lombok.Data;
 @Data
 public class AccountWithdrawReq {
 
+    @ApiModelProperty(value = "银行ID", required = true, dataType = "Integer")
+    private Integer bankId;
+
     @ApiModelProperty(value = "积分", required = true, dataType = "Integer")
     private Integer credit;
 
     public boolean validate() {
-        return credit != null && credit > 0;
+        return bankId != null && credit != null && credit > 0;
     }
 
 }

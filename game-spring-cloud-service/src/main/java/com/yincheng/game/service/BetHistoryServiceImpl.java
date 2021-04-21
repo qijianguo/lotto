@@ -50,7 +50,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     @Override
     public void settleAndNotice(String game, Task current, Task next) {
         RecentTaskResp resp = new RecentTaskResp(current, next);
-        webSocketService.send(Destination.gameResult(game), resp);
+        webSocketService.send(Destination.resultTopic(game), resp);
         if (current != null) {
             betHistoryService.settle(game, current, true);
         }
@@ -93,7 +93,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         list.forEach(bet -> ThreadPoolUtils.execute(() -> {
             Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {
-                webSocketService.send(String.valueOf(account.getUserId()), Destination.account(), new RewardResponse(account));
+                webSocketService.send(String.valueOf(account.getUserId()), Destination.accountQueue(), new RewardResponse(account));
                 User user = notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
                 webSocketService.send(Destination.rewardTopic(gameName.toLowerCase()), NoticeResp.init(user, account));
             }

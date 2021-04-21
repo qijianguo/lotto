@@ -96,7 +96,7 @@ public class GameFlowJob extends QuartzJobBean {
         }
         // 通过ws发送给客户端
         RecentTaskResp resp = new RecentTaskResp(prevTask, context.getNextTask());
-        webSocketService.send(Destination.gameResult(gameFlow.getType()), resp);
+        webSocketService.send(Destination.resultTopic(gameFlow.getType()), resp);
         taskJob.addTask(gameFlow, prevTask);
     }
 

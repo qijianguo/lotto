@@ -7,7 +7,7 @@ package com.yincheng.game.model.enums;
 public enum AccountDetailType {
 
     /** 充值 */
-    PREPAID(1, 1, 1),
+    PREPAID(1, 0, 0),
     /** 消费 */
     SPEED(2, 1, 1),
     /** 提现 */
@@ -16,6 +16,8 @@ public enum AccountDetailType {
     GIFT(4, 1, 1),
     /** 收入 */
     REWARD(5, 1, 1),
+    /** 退回 */
+    RETURN(6, 1, 1),
     ;
 
     /**

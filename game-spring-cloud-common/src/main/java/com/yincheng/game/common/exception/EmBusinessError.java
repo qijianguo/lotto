@@ -21,7 +21,10 @@ public enum EmBusinessError implements CommonError {
     // ACCOUNT
     ACCOUNT_INSUFFICIENT_BALANCE(30000, "Your account balance is insufficient."),
     REWARD_REPEATED_ERROR(30001, "Cannot get reward repeated."),
-
+    ACCOUNT_PREPAID_ORDER_NOT_FOUND(30002, "Prepaid order not found."),
+    ACCOUNT_ORDER_NO_PAY(30003, "Order no success"),
+    WITHDRAW_BANK_NOT_FOUND(30004, "Bank info not found."),
+    WITHDRAW_ALREADY_REVIEWED(30005, "Withdraw already reviewed."),
 
     INVALID_FACEBOOK_CODE(30002, "Verify the code failed."),
     INVALID_FACEBOOK_ACC_TOKEN(20003, "Verify the access token failed."),
@@ -31,6 +34,11 @@ public enum EmBusinessError implements CommonError {
     GAME_CONFIG_NOT_FOUND(40001, "Lotto config not found."),
 
     PERIOD_DRAWN(40002, "Lotto period already been drawn."),
+
+    SINOPAY_SIGN_ERROR(50001, "Sign error."),
+    SINOPAY_ORDER_FIELD(50002, "Prepaid failed."),
+    SINOPAY_CURRENCY_NOT_SUPPORT(50003, "Currency not support."),
+    SINOPAY_DISBURSE_FIELD(50004, "Disburse failed.")
 
     ;
 
