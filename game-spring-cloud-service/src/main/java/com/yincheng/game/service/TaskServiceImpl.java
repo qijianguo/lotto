@@ -9,13 +9,14 @@ import com.yincheng.game.model.enums.GameType;
 import com.yincheng.game.model.po.Task;
 import com.yincheng.game.model.vo.PeriodReq;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 任务
@@ -43,7 +44,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     @Transactional(rollbackFor = BusinessException.class)
     public void updateResult(String gameType, Task task) {
-        List<Integer> nums = getNums(gameType);
+        List<Integer> nums = getNums(gameType, task);
         task.setPeriodResult(StringUtils.join(nums, ","), nums.stream().mapToInt(Integer::intValue).sum());
         lambdaUpdate().eq(Task::getId, task.getId())
                 .update(task);
@@ -80,7 +81,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return null;
     }
 
-    private List<Integer> getNums(String gameType) {
+//    @Autowired
+//    private BetStatService betStatService;
+
+    private List<Integer> getNums(String gameType, Task task) {
         GameType match = GameType.match(gameType);
         if (match == null) {
             throw new IllegalArgumentException("game type not found, errGameType = " + gameType);
@@ -99,6 +103,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 break;
             default:
         }
+
         /*List<Integer> nums = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
             Integer randomNum = RandomUtils.secureRandomNum();

@@ -6,12 +6,14 @@ import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.common.util.ThreadPoolUtils;
 import com.yincheng.game.dao.mapper.BetHistoryMapper;
+import com.yincheng.game.model.RedisKeys;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.enums.Bet;
 import com.yincheng.game.model.enums.Destination;
 import com.yincheng.game.model.enums.NotificationType;
 import com.yincheng.game.model.po.*;
 import com.yincheng.game.model.vo.*;
+import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,24 +127,6 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         return account.get();
     }
 
-    /*private Account settle(BetHistory bet, List<Integer> result, Integer maxTryTimes) {
-        Account acc = null;
-        try {
-            acc = betHistoryService.settle(bet, result);
-        } catch (Exception e) {
-            logger.warn("try settle {}-{}-{} times = {} ", bet.getUserId(), bet.getGameId(), bet.getPeriod(), maxTryTimes);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException interruptedException) {
-                logger.error(interruptedException.getMessage(), interruptedException);
-            }
-            if (maxTryTimes >= 0) {
-                settle(bet, result, maxTryTimes++);
-            }
-        }
-        return acc;
-    }*/
-
     /**
      * 计算结果
      * @param betHistory 下注记录
@@ -231,18 +215,24 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
                 .set(BetHistory::getReward, reward)
                 .set(BetHistory::getDescription, description)
                 .update();
-        String lockKey = USER_ACCOUNT_LOCK + betHistory.getUserId();
+        String lockKey = RedisKeys.userAccount(betHistory.getUserId());
         String value = UUID.randomUUID().toString();
         if (rewardCount > 0 && updated) {
             boolean success = redisLockHelper.lock(lockKey, value, 2, TimeUnit.SECONDS);
+            int tryTimes = 3;
             while (!success) {
+                if (tryTimes <= 0) {
+                    logger.error("saveInDb tryTimes limited > 3" + betHistory);
+                    throw new BusinessException(EmBusinessError.SYSTEM_BUSY);
+                }
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException interruptedException) {
                     logger.error(interruptedException.getMessage(), interruptedException);
                     throw new BusinessException(EmBusinessError.SYSTEM_BUSY);
                 }
-                success = redisLockHelper.lock(lockKey, value, 2, TimeUnit.SECONDS);
+                success = redisLockHelper.lock(lockKey, value, 1, TimeUnit.SECONDS);
+                tryTimes --;
             }
             try {
                 // 更新账户余额
@@ -258,10 +248,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
     }
 
     @Autowired
-    private BetStatService betStatService;
-    @Autowired
     private RedisLockHelper redisLockHelper;
-    private static final String USER_ACCOUNT_LOCK = "user_account:";
 
     @Override
     public Account bet(User user, BetAddReq req) {
@@ -300,7 +287,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         Account account = accountService.betSpeed(detail);
 
         // TODO 下注统计
-        //betStatService.add(req);
+        //betStatService.add3(req);
 
         return account;
     }

@@ -66,7 +66,7 @@ public class AccountController {
     @ApiOperation(value = "首次注册赠送积分", response = AccountResp.class)
     @PostMapping("/reward")
     @Authentication
-    @CacheLock(prefix = "account_reward")
+    @CacheLock(prefix = "user_account")
     public Result giving(@ApiIgnore @CurrentUser User user) {
         AccountDetail detail = AccountDetail.create(user.getId(), 1000000,  AccountDetailType.GIFT);
         Account account = accountService.giving(detail);
@@ -93,7 +93,7 @@ public class AccountController {
     @ApiOperation(value = "申请提现", response = AccountResp.class)
     @PostMapping("/withdraw")
     @Authentication
-    @CacheLock(prefix = "account_withdraw")
+    @CacheLock(prefix = "user_account")
     public Result withdraw(@ApiIgnore @CurrentUser User user, AccountWithdrawReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
@@ -110,7 +110,7 @@ public class AccountController {
     @ApiOperation(value = "审核提现申请(ADMIN)")
     @GetMapping("/withdraw/review")
     @Authentication(roles = Role.ADMIN)
-    @CacheLock(prefix = "account_withdraw_review")
+    @CacheLock(prefix = "user_account")
     public Result reviewWithdraw(@ApiIgnore @CurrentUser User user, AccountWithdrawReviewReq req) {
         accountService.review(req);
         return Result.success();

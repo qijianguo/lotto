@@ -57,8 +57,8 @@ public class ThreadPoolUtils {
         } else {
             synchronized (ThreadPoolUtils.class) {
                 if (threadPool == null) {
-                    threadPool = new ThreadPoolExecutor(4, 16, 60, TimeUnit.SECONDS,
-                            new LinkedBlockingQueue<>(32), new ThreadPoolExecutor.CallerRunsPolicy());
+                    threadPool = new ThreadPoolExecutor(4, 8, 60, TimeUnit.SECONDS,
+                            new LinkedBlockingQueue<>(128), new ThreadPoolExecutor.CallerRunsPolicy());
                 }
                 return threadPool;
             }

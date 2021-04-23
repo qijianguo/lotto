@@ -9,6 +9,10 @@ public class RedisKeys {
         return String.format("user:%s", userId);
     }
 
+    public static String userAccount(Integer userId) {
+        return "user_account:" + userId;
+    }
+
     /** 中奖通知 */
     public static String noticeReward() {
         return "notice:reward";
