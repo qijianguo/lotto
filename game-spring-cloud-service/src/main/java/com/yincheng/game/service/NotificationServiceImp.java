@@ -25,47 +25,29 @@ public class NotificationServiceImp implements NotificationService {
 
     @Override
     public User reward(NotificationReq req) {
-        Notification notification = new Notification();
-        User user = null;
-        if (req.getUserId() != null) {
-            user = userService.getById(req.getUserId());
-            notification.setCover(user.getAvatar());
-            notification.setTitle(RegexUtils.replaceWithStar(user.getNickName()));
-            notification.setDescription(req.getDescription());
-            notification.setCredit(req.getCredit());
-            notification.setTime(new Date());
-        }
-        String key = RedisKeys.notice("reward");
-        save(key, 100, notification);
+        User user = userService.getById(req.getUserId());
+        Notification notification = Notification.create(user, req);
+        save(RedisKeys.noticeReward(), 100, notification);
         return user;
     }
 
     @Override
     public User withdraw(NotificationReq req) {
-        Notification notification = new Notification();
-        User user = null;
-        if (req.getUserId() != null) {
-            user = userService.getById(req.getUserId());
-            notification.setCover(user.getAvatar());
-            notification.setTitle(RegexUtils.replaceWithStar(user.getNickName()));
-            notification.setDescription(req.getDescription());
-            notification.setCredit(req.getCredit());
-            notification.setTime(new Date());
-        }
-        String key = RedisKeys.notice("withdraw");
-        save(key, 100, notification);
+        User user = userService.getById(req.getUserId());
+        Notification notification = Notification.create(user, req);
+        save(RedisKeys.noticeWithdraw(), 100, notification);
         return user;
     }
 
     @Override
     public List<Notification> getReward(Integer size) {
-        List withdraw = redisTemplate.opsForList().range(RedisKeys.notice("reward"), 0,  size == null ? 5 : size);
+        List withdraw = redisTemplate.opsForList().range(RedisKeys.noticeReward(), 0,  size == null ? 5 : size);
         return withdraw;
     }
 
     @Override
     public List<Notification> getWithdraw(Integer size) {
-        List withdraw = redisTemplate.opsForList().range(RedisKeys.notice("withdraw"), 0,  size == null ? 5 : size);
+        List withdraw = redisTemplate.opsForList().range(RedisKeys.noticeWithdraw(), 0,  size == null ? 5 : size);
         return withdraw;
     }
 
@@ -78,7 +60,5 @@ public class NotificationServiceImp implements NotificationService {
             redisTemplate.opsForList().leftPush(key, notification);
         }
     }
-
-
 
 }

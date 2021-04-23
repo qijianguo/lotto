@@ -84,11 +84,6 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         CountDownLatch latch = new CountDownLatch(list.size());
         Map<Integer, List<BetHistory>> groupByUser = list.stream().collect(Collectors.groupingBy(BetHistory::getUserId));
         groupByUser.keySet().forEach(userId -> ThreadPoolUtils.execute(() -> {
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
             List<BetHistory> userBetList = groupByUser.get(userId);
             Account account = settle(userBetList, result);
             if (notice && account != null) {
@@ -98,6 +93,11 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             }
             latch.countDown();
         }));
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+        }
         /*list.forEach(bet -> ThreadPoolUtils.execute(() -> {
             Account account = betHistoryService.settle(bet, result);
             if (notice && account != null) {

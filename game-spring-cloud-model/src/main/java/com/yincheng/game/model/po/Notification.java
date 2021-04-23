@@ -1,5 +1,7 @@
 package com.yincheng.game.model.po;
 
+import com.yincheng.game.common.util.RegexUtils;
+import com.yincheng.game.model.vo.NotificationReq;
 import lombok.Data;
 
 import java.util.Date;
@@ -21,5 +23,15 @@ public class Notification {
     private String description;
 
     private Date time;
+
+    public static Notification create(User user, NotificationReq req) {
+        Notification notification = new Notification();
+        notification.setCover(user.getAvatar());
+        notification.setTitle(RegexUtils.replaceWithStar(user.getNickName()));
+        notification.setDescription(req.getDescription());
+        notification.setCredit(req.getCredit());
+        notification.setTime(new Date());
+        return notification;
+    }
 
 }

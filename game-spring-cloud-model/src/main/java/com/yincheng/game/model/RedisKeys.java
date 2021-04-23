@@ -9,7 +9,12 @@ public class RedisKeys {
         return String.format("user:%s", userId);
     }
 
-    public static String notice(String type) {
-        return String.format("notice:%s", type);
+    /** 中奖通知 */
+    public static String noticeReward() {
+        return "notice:reward";
+    }
+    /** 提现通知 */
+    public static String noticeWithdraw() {
+        return "notice:withdraw";
     }
 }
