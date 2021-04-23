@@ -9,6 +9,7 @@ import com.yincheng.game.dao.mapper.BetHistoryMapper;
 import com.yincheng.game.model.enums.AccountDetailType;
 import com.yincheng.game.model.enums.Bet;
 import com.yincheng.game.model.enums.Destination;
+import com.yincheng.game.model.enums.NotificationType;
 import com.yincheng.game.model.po.*;
 import com.yincheng.game.model.vo.*;
 import org.slf4j.Logger;
@@ -92,7 +93,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             Account account = settle(userBetList, result);
             if (notice && account != null) {
                 webSocketService.send(String.valueOf(account.getUserId()), Destination.accountQueue(), new RewardResponse(account));
-                User user = notificationService.reward(new NotificationReq(account.getUserId(), "Rp" + account.getReward() + " in " + gameName.toUpperCase()));
+                User user = notificationService.reward(NotificationReq.create(gameName.toUpperCase(), account, NotificationType.REWARD));
                 webSocketService.send(Destination.rewardTopic(gameName.toLowerCase()), NoticeResp.init(user, account));
             }
             latch.countDown();
@@ -116,7 +117,7 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             if (acc != null) {
                 Account last = account.get();
                 if (last != null) {
-                    acc.setReward(last.getReward() + acc.getReward());
+                    acc.setCredit(last.getCredit() + acc.getCredit());
                 }
                 account.set(acc);
             }
@@ -211,30 +212,13 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         return betHistoryService.saveInDb(betHistory, totalCount.get(), betList.size(), num);
     }
 
-    private Account trySaveInDb(BetHistory betHistory, Integer rewardCount, Integer betSize, Integer singleResult, Integer maxTryTimes) {
-        try {
-            return betHistoryService.saveInDb(betHistory, rewardCount, betSize, singleResult);
-        } catch (Exception e) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException interruptedException) {
-                logger.error(interruptedException.getMessage(), interruptedException);
-            }
-            if (maxTryTimes >= 0) {
-                maxTryTimes--;
-                return trySaveInDb(betHistory, rewardCount, betSize, singleResult, maxTryTimes);
-            }
-        }
-        return null;
-    }
-
     @Override
     @Transactional(rollbackFor = BusinessException.class)
     public Account saveInDb(BetHistory betHistory, Integer rewardCount, Integer betSize, Integer singleResult) {
         int reward = 0;
         String description;
         if (rewardCount > 0) {
-            int credit = betHistory.getCredit() - (int)(betHistory.getCredit() * Double.parseDouble(betHistory.getFee()));
+            int credit = betHistory.getCredit();
             reward = (int) (credit / betSize * rewardCount * Double.parseDouble(betHistory.getOdds()));
             description = "win";
         } else {
@@ -262,9 +246,9 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
             }
             try {
                 // 更新账户余额
-                AccountDetail detail = AccountDetail.valueOf(betHistory.getUserId(), reward, AccountDetailType.REWARD);
+                AccountDetail detail = AccountDetail.create(betHistory.getUserId(), reward, AccountDetailType.REWARD);
                 Account account = accountService.betReward(detail);
-                account.setReward(reward);
+                account.setCredit(reward);
                 return account;
             } finally {
                 redisLockHelper.unlock(lockKey, value);
@@ -300,25 +284,21 @@ public class BetHistoryServiceImpl extends ServiceImpl<BetHistoryMapper, BetHist
         GameConfig betFee = collect.get("bet_fee");
         GameConfig singleOdds = collect.get("high_low_odd_even_odds");
         GameConfig numberOdds = collect.get("number_odds");
-
         // 查看开奖状态，如果是已开奖则不能下注, 不在时间段内不能下注
         Task period = taskService.getByGamePeriod(req.getGameId(), req.getPeriod());
         Date now = new Date();
         if (period == null || period.getStatus() == 1 || now.before(period.getStartTime()) || now.after(period.getEndTime())) {
             throw new BusinessException(EmBusinessError.PERIOD_DRAWN);
         }
+
+        BetHistory betHistory = new BetHistory(user, req, betFee, singleOdds, numberOdds);
+        betHistoryService.save(betHistory);
+
         // 更新账户余额
-        AccountDetail detail = AccountDetail.valueOf(user.getId(), req.getCredit(), AccountDetailType.SPEED);
+        int fee = req.getCredit() - betHistory.getCredit();
+        AccountDetail detail = AccountDetail.createWithFee(user.getId(), req.getCredit(), fee, AccountDetailType.SPEED);
         Account account = accountService.betSpeed(detail);
 
-        BetHistory betHistory = new BetHistory(user, req);
-        betHistory.setFee(betFee.getValue());
-        if (req.isNumBet()) {
-            betHistory.setOdds(numberOdds.getValue());
-        } else {
-            betHistory.setOdds(singleOdds.getValue());
-        }
-        betHistoryService.save(betHistory);
         // TODO 下注统计
         //betStatService.add(req);
 

@@ -19,6 +19,8 @@ public class AccountDetailResp {
     private Integer balance;
     @ApiModelProperty(value = "充值/消费积分", required = true, dataType = "Integer")
     private Integer credit;
+    @ApiModelProperty(value = "手续费", required = true, dataType = "Integer")
+    private Integer fee;
     @ApiModelProperty(value = "创建时间", required = true, dataType = "Date")
     private Date createTime;
     @ApiModelProperty(value = "更新时间", required = true, dataType = "Date")

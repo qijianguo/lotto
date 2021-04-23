@@ -28,9 +28,11 @@ public interface SinopayDetailService extends IService<SinopayDetail> {
 
     /**
      * 代付
+     * @param userId 用户ID
+     * @param accountDetailId 记录ID
      * @param req
      */
-    void disburse(Integer userId, SpWithdrawReq req);
+    void disburse(Integer userId, Integer accountDetailId, SpWithdrawReq req);
 
     //void queryOrder();
 

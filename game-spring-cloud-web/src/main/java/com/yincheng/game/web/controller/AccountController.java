@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
+import com.yincheng.game.common.util.NumberUtils;
 import com.yincheng.game.model.Result;
 import com.yincheng.game.model.anno.Authentication;
 import com.yincheng.game.model.anno.CacheLock;
@@ -67,7 +68,7 @@ public class AccountController {
     @Authentication
     @CacheLock(prefix = "account_reward")
     public Result giving(@ApiIgnore @CurrentUser User user) {
-        AccountDetail detail = AccountDetail.valueOf(user.getId(), 1000000,  AccountDetailType.GIFT);
+        AccountDetail detail = AccountDetail.create(user.getId(), 1000000,  AccountDetailType.GIFT);
         Account account = accountService.giving(detail);
         return Result.success(new AccountResp(account));
     }
@@ -97,7 +98,11 @@ public class AccountController {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
-        AccountDetail detail = AccountDetail.valueOf(user.getId(), req.getCredit(), AccountDetailType.WITHDRAW);
+        int fee = (int) NumberUtils.keepPrecision(req.getCredit() * 1.5f / 100 + 7000, 0);
+        if (req.getCredit() < fee) {
+            throw new BusinessException(EmBusinessError.WITHDRAW_CREDIT_LIMITED);
+        }
+        AccountDetail detail = AccountDetail.createWithFee(user.getId(), req.getCredit(), fee,  AccountDetailType.WITHDRAW);
         Account account = accountService.withdraw(detail);
         return Result.success(new AccountResp(account));
     }

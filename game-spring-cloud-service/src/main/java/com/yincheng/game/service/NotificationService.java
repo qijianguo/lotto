@@ -1,5 +1,7 @@
 package com.yincheng.game.service;
 
+import com.yincheng.game.model.po.Account;
+import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.po.Notification;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.vo.NotificationReq;
@@ -36,4 +38,5 @@ public interface NotificationService {
      * @return
      */
     List<Notification> getWithdraw(Integer size);
+
 }

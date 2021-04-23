@@ -3,7 +3,7 @@ package com.yincheng.game.model.po;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yincheng.game.model.vo.BankAddReq;
+import com.yincheng.game.model.vo.BankReq;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public class UserBank {
 
     private Integer userId;
 
-    public static UserBank create(User user, BankAddReq req) {
+    public static UserBank create(User user, BankReq req) {
         UserBank userBank = new UserBank();
         userBank.setUserId(user.getId());
         userBank.setBank(req.getBank());

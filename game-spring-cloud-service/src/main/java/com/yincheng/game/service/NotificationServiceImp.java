@@ -32,6 +32,7 @@ public class NotificationServiceImp implements NotificationService {
             notification.setCover(user.getAvatar());
             notification.setTitle(RegexUtils.replaceWithStar(user.getNickName()));
             notification.setDescription(req.getDescription());
+            notification.setCredit(req.getCredit());
             notification.setTime(new Date());
         }
         String key = RedisKeys.notice("reward");
@@ -47,7 +48,8 @@ public class NotificationServiceImp implements NotificationService {
             user = userService.getById(req.getUserId());
             notification.setCover(user.getAvatar());
             notification.setTitle(RegexUtils.replaceWithStar(user.getNickName()));
-            notification.setDescription("withdraw Rp" + req.getDescription());
+            notification.setDescription(req.getDescription());
+            notification.setCredit(req.getCredit());
             notification.setTime(new Date());
         }
         String key = RedisKeys.notice("withdraw");

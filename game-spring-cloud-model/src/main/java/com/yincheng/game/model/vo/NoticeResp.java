@@ -25,7 +25,7 @@ public class NoticeResp {
             resp.setNickName(user.getNickName());
         }
         if (account != null) {
-            resp.setReward(account.getReward());
+            resp.setReward(account.getCredit());
         }
         return resp;
     }

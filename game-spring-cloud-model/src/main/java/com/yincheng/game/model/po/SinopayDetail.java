@@ -26,6 +26,8 @@ public class SinopayDetail {
 
     private Integer userId;
 
+    private Integer accountDetailId;
+
     private String tradeType;
 
     private String currency;
@@ -80,10 +82,11 @@ public class SinopayDetail {
         return detail;
     }
 
-    public static SinopayDetail init(int userId, SpWithdrawReq req, SpWithdrawResp orderResp) {
+    public static SinopayDetail init(int userId, Integer accountDetailId, SpWithdrawReq req, SpWithdrawResp orderResp) {
         // 请求参数
         SinopayDetail detail = new SinopayDetail();
         detail.setUserId(userId);
+        detail.setAccountDetailId(accountDetailId);
         detail.setMoney(req.getMoney());
         detail.setOutOrderId(req.getOutOrderId());
         detail.setBank(req.getBank());

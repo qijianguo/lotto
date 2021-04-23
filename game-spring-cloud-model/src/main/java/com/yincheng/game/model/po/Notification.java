@@ -10,9 +10,13 @@ import java.util.Date;
 @Data
 public class Notification {
 
+    private Integer type;
+
     private String cover;
 
     private String title;
+
+    private Integer credit;
 
     private String description;
 

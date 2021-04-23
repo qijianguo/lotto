@@ -5,6 +5,7 @@ import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.dao.mapper.AccountMapper;
 import com.yincheng.game.model.enums.AccountDetailType;
+import com.yincheng.game.model.enums.NotificationType;
 import com.yincheng.game.model.po.Account;
 import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.po.UserBank;
@@ -71,7 +72,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public Account withdraw(AccountDetail detail) {
         detail.setDetailType(AccountDetailType.WITHDRAW);
         Account account = accountService.decrease(detail);
-        notificationService.withdraw(new NotificationReq(account.getUserId(), "Withdraw Rp" + account.getReward()));
+        notificationService.withdraw(NotificationReq.create(account, NotificationType.WITHDRAW));
         return account;
     }
 
@@ -150,7 +151,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
             }
             // 向第三方支付发起转账请求
-            sinopayDetailService.disburse(detail.getUserId(), SpWithdrawReq.create(bank, String.valueOf(detail.getCredit())));
+            sinopayDetailService.disburse(detail.getUserId(), detail.getId(), SpWithdrawReq.create(bank, String.valueOf(detail.getCost())));
         } else {
             // 审核失败
             detail.setSuccess(0);
@@ -158,8 +159,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             if (!updated) {
                 throw new BusinessException(EmBusinessError.UNKNOW_ERROR);
             }
-            // 退回账户
-            accountService.returned(AccountDetail.valueOf(detail.getId(), detail.getCredit(),  AccountDetailType.RETURN));
+            // 退回账户, 包含手续费
+            accountService.returned(AccountDetail.create(detail.getId(), detail.getCredit() + detail.getFee(),  AccountDetailType.RETURN));
         }
     }
 

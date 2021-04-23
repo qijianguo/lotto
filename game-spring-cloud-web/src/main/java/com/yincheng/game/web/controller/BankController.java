@@ -4,15 +4,11 @@ import com.yincheng.game.model.Result;
 import com.yincheng.game.model.anno.Authentication;
 import com.yincheng.game.model.anno.CacheLock;
 import com.yincheng.game.model.anno.CurrentUser;
-import com.yincheng.game.model.enums.AccountDetailType;
-import com.yincheng.game.model.po.Account;
-import com.yincheng.game.model.po.AccountDetail;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.po.UserBank;
 import com.yincheng.game.model.vo.AccountResp;
-import com.yincheng.game.model.vo.BankAddReq;
+import com.yincheng.game.model.vo.BankReq;
 import com.yincheng.game.model.vo.BankResp;
-import com.yincheng.game.model.vo.BankUpdateReq;
 import com.yincheng.game.service.UserBankService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,22 +32,13 @@ public class BankController {
     @Autowired
     private UserBankService userBankService;
 
-    @ApiOperation(value = "添加银行卡", response = BankResp.class)
+    @ApiOperation(value = "添加/修改银行卡", response = BankResp.class)
     @PostMapping
     @Authentication
-    @CacheLock(prefix = "bank_add")
-    public Result add(@ApiIgnore @CurrentUser User user, BankAddReq req) {
-        UserBank bank = userBankService.add(user, req);
+    @CacheLock(prefix = "bank_save")
+    public Result save(@ApiIgnore @CurrentUser User user, BankReq req) {
+        UserBank bank = userBankService.save(user, req);
         return Result.success(BankResp.create(bank));
-    }
-
-    @ApiOperation(value = "修改银行卡信息")
-    @PutMapping
-    @Authentication
-    @CacheLock(prefix = "bank_update")
-    public Result update(@ApiIgnore @CurrentUser User user, BankUpdateReq req) {
-        userBankService.update(req);
-        return Result.success();
     }
 
     @ApiOperation(value = "查询银行卡", response = BankResp.class)

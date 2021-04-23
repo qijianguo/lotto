@@ -8,10 +8,10 @@ import org.springframework.util.StringUtils;
 /**
  * @author qijianguo
  */
-@ApiModel("银行请求")
+@ApiModel("添加/修改银行卡信息")
 @Data
-public class BankUpdateReq {
-    @ApiModelProperty(value = "记录ID", required = true, dataType = "Integer")
+public class BankReq {
+    @ApiModelProperty(value = "记录ID,如果有值，则修改，否则添加", dataType = "Integer")
     private Integer id;
     @ApiModelProperty(value = "银行名称：如中国银行", required = true, dataType = "String")
     private String bank;
@@ -23,7 +23,7 @@ public class BankUpdateReq {
     private String realName;
 
     public boolean validate() {
-        return id != null && (bank != null || branch != null || cardNo != null || realName != null);
+        return !StringUtils.isEmpty(bank) && !StringUtils.isEmpty(branch) && !StringUtils.isEmpty(cardNo) && !StringUtils.isEmpty(realName);
     }
 
 }

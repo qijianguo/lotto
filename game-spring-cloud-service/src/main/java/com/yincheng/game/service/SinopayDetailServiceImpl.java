@@ -108,10 +108,11 @@ public class SinopayDetailServiceImpl extends ServiceImpl<SinopayDetailMapper, S
             logger.warn("Order prepaid money not match. params:{}", params);
             reback.put("err", "Order prepaid currency not match.");
         }
-        AccountDetail accountDetail = AccountDetail.valueOf(detail.getUserId(), detail.getMoney().intValue(),  AccountDetailType.PREPAID);
+        AccountDetail accountDetail = AccountDetail.create(detail.getUserId(), detail.getMoney().intValue(),  AccountDetailType.PREPAID);
         accountService.prepaid(accountDetail);
 
         sinopayDetailMapper.update(
+                accountDetail.getId(),
                 params.get("orderId"),
                 detail.getMoney(),
                 params.get("status"),
@@ -147,10 +148,11 @@ public class SinopayDetailServiceImpl extends ServiceImpl<SinopayDetailMapper, S
             throw new BusinessException(EmBusinessError.SINOPAY_CURRENCY_NOT_SUPPORT);
         }
 
-        AccountDetail accountDetail = AccountDetail.valueOf(detail.getUserId(), detail.getMoney().intValue(),  AccountDetailType.PREPAID);
+        AccountDetail accountDetail = AccountDetail.create(detail.getUserId(), detail.getMoney().intValue(),  AccountDetailType.PREPAID);
         accountService.prepaid(accountDetail);
 
         sinopayDetailMapper.update(
+                accountDetail.getId(),
                 spQueryOrderResp.getOrderId(),
                 detail.getMoney(),
                 spQueryOrderResp.getXendit_ret().getStatus(),
@@ -160,14 +162,14 @@ public class SinopayDetailServiceImpl extends ServiceImpl<SinopayDetailMapper, S
 
     @Override
     @Transactional(rollbackFor = BusinessException.class)
-    public void disburse(Integer userId, SpWithdrawReq req) {
+    public void disburse(Integer userId, Integer accountDetailId, SpWithdrawReq req) {
         if (!req.validate()) {
             throw new BusinessException(EmBusinessError.PARAMETER_ERROR);
         }
         // 发起代付申请
         SpWithdrawResp disburse = sinopayService.disburse(req);
         // 保存代扣记录
-        SinopayDetail entity = SinopayDetail.init(userId, req, disburse);
+        SinopayDetail entity = SinopayDetail.init(userId, accountDetailId, req, disburse);
         sinopayDetailMapper.insert(entity);
     }
 }

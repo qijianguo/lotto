@@ -3,8 +3,7 @@ package com.yincheng.game.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yincheng.game.model.po.User;
 import com.yincheng.game.model.po.UserBank;
-import com.yincheng.game.model.vo.BankAddReq;
-import com.yincheng.game.model.vo.BankUpdateReq;
+import com.yincheng.game.model.vo.BankReq;
 
 import java.util.List;
 
@@ -14,12 +13,12 @@ import java.util.List;
 public interface UserBankService extends IService<UserBank> {
 
     /**
-     * 添加用户银行卡信息
+     * 添加/修改用户银行卡信息
      * @param user 用户信息
      * @param req 银行卡信息
      * @return
      */
-    UserBank add(User user, BankAddReq req);
+    UserBank save(User user, BankReq req);
 
     /**
      * 查询用户所有银行卡
@@ -28,11 +27,6 @@ public interface UserBankService extends IService<UserBank> {
      */
     List<UserBank> list(User user);
 
-    /**
-     * 修改银行卡信息
-     * @param req
-     */
-    void update(BankUpdateReq req);
 
     /**
      * 查询最近添加的一个

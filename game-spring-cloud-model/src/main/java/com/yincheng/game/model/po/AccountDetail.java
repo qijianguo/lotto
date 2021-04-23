@@ -27,6 +27,8 @@ public class AccountDetail {
     private Integer balance;
     /** 充值/消费积分 */
     private Integer credit;
+    /** 手续费 */
+    private Integer fee;
     /** 状态确认：充值/消费默认为1，提现默认为0 */
     private Integer confirm;
     /**
@@ -40,19 +42,28 @@ public class AccountDetail {
     /** 更新时间 */
     private Date updateTime;
 
+    public Integer getCost() {
+        return credit - fee;
+    }
+
     public void setDetailType(AccountDetailType speed) {
         this.type = speed.getType();
         this.confirm = speed.getDefConfirm();
         this.success = speed.getSuccess();
     }
 
-    public static AccountDetail valueOf(Integer userId, Integer credit, AccountDetailType speed) {
+    public static AccountDetail create(Integer userId, Integer credit, AccountDetailType detailType) {
+        return createWithFee(userId, credit, 0, detailType);
+    }
+
+    public static AccountDetail createWithFee(Integer userId, Integer credit, Integer fee, AccountDetailType detailType) {
         AccountDetail detail = new AccountDetail();
         detail.setUserId(userId);
-        detail.setType(speed.getType());
-        detail.setConfirm(speed.getDefConfirm());
-        detail.setSuccess(speed.getSuccess());
+        detail.setType(detailType.getType());
+        detail.setConfirm(detailType.getDefConfirm());
+        detail.setSuccess(detailType.getSuccess());
         detail.setCredit(credit);
+        detail.setFee(fee);
         detail.setCreateTime(new Date());
         detail.setUpdateTime(detail.getCreateTime());
         return detail;

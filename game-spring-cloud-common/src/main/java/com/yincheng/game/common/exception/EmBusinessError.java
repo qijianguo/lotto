@@ -25,6 +25,7 @@ public enum EmBusinessError implements CommonError {
     ACCOUNT_ORDER_NO_PAY(30003, "Order no success"),
     WITHDRAW_BANK_NOT_FOUND(30004, "Bank info not found."),
     WITHDRAW_ALREADY_REVIEWED(30005, "Withdraw already reviewed."),
+    WITHDRAW_CREDIT_LIMITED(30006, "The withdrawal amount is too small."),
 
     INVALID_FACEBOOK_CODE(30002, "Verify the code failed."),
     INVALID_FACEBOOK_ACC_TOKEN(20003, "Verify the access token failed."),

@@ -77,7 +77,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         if (success) {
             return user;
         }
-        throw new BusinessException(EmBusinessError.USER_TOKEN_EXPIRED);
+        throw new BusinessException(EmBusinessError.USER_NO_PERMISSION);
     }
 
 }

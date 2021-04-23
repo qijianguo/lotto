@@ -37,7 +37,8 @@ public class NotificationController {
         withdraw.forEach(po -> {
             NotificationResp resp = new NotificationResp();
             resp.setTitle(po.getTitle());
-            resp.setTime(TimeUtils.convertDate2DateString(po.getTime()));
+            resp.setTime(po.getTime());
+            resp.setCredit(po.getCredit());
             resp.setDescription(po.getDescription());
             respList.add(resp);
         });
@@ -52,7 +53,7 @@ public class NotificationController {
         withdraw.forEach(po -> {
             NotificationResp resp = new NotificationResp();
             resp.setTitle(po.getTitle());
-            resp.setTime(TimeUtils.mill2HourMin(System.currentTimeMillis() - po.getTime().getTime()));
+            resp.setTime(po.getTime());
             resp.setDescription(po.getDescription());
             respList.add(resp);
         });

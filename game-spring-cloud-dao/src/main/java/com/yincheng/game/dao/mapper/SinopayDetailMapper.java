@@ -24,8 +24,9 @@ public interface SinopayDetailMapper extends BaseMapper<SinopayDetail> {
     @Select("select * from t_sinopay_detail where order_id = #{orderId}")
     SinopayDetail selectByOrderId(@Param("orderId") String orderId);
 
-    @Update("update t_sinopay_detail set order_id = #{orderId}, received = #{received}, status = #{status} where id = #{id}")
-    void update(@Param("orderId") String orderId,
+    @Update("update t_sinopay_detail set account_detail_id = #{accountDetailId}, order_id = #{orderId}, received = #{received}, status = #{status} where id = #{id}")
+    void update(@Param("accountDetailId") Integer accountDetailId,
+                @Param("orderId") String orderId,
                 @Param("received") BigDecimal received,
                 @Param("status") String status,
                 @Param("id") Integer id);

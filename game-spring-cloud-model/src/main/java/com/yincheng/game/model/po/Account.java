@@ -31,13 +31,13 @@ public class Account {
     /** 更新时间 */
     private Date updateTime;
     @TableField(exist = false)
-    private Integer reward;
+    private Integer credit;
 
     public static Account init(Integer userId) {
         Account account = new Account();
         account.setUserId(userId);
         account.setBalance(0);
-        account.setReward(0);
+        account.setCredit(0);
         account.setStatus(0);
         account.setCreateTime(new Date());
         account.setUpdateTime(account.getCreateTime());
@@ -54,6 +54,7 @@ public class Account {
         }
         this.balance += detail.getCredit();
         this.updateTime = new Date();
+        this.credit = detail.getCredit();
         detail.setBalance(this.balance);
     }
 
@@ -63,6 +64,7 @@ public class Account {
         }
         this.balance -= detail.getCredit();
         this.updateTime = new Date();
+        this.credit = detail.getCredit();
         detail.setBalance(this.balance);
     }
 }

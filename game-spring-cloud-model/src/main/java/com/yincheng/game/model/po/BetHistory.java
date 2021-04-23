@@ -3,6 +3,7 @@ package com.yincheng.game.model.po;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.yincheng.game.common.util.NumberUtils;
 import com.yincheng.game.model.vo.BetAddReq;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -51,17 +52,21 @@ public class BetHistory {
     private Date updateTime;
 
 
-    public BetHistory(User user, BetAddReq req) {
+    public BetHistory(User user, BetAddReq req, GameConfig betFee, GameConfig singleOdds, GameConfig numberOdds) {
         this.userId = user.getId();
         this.gameId = req.getGameId();
         this.period = req.getPeriod();
         this.target = req.getTarget();
         if (req.isNumBet()) {
             this.bet = StringUtils.join(req.getBetNums(), ",").toUpperCase();
+            this.odds = numberOdds.getValue();
         } else {
             this.bet = StringUtils.join(req.getBetHloe(), ",").toUpperCase();
+            this.odds = singleOdds.getValue();
         }
-        this.credit = req.getCredit();
+        this.fee = betFee.getValue();
+        // 扣除手续费
+        this.credit = (int) NumberUtils.keepPrecision(req.getCredit() - req.getCredit() * Double.parseDouble(this.fee), 0);
         this.result = "";
         this.status = 0;
         this.description = "";

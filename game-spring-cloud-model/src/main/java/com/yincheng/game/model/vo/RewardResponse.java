@@ -16,7 +16,7 @@ public class RewardResponse {
     public RewardResponse(Account account) {
         if (account != null) {
             this.balance = account.getBalance();
-            this.reward = account.getReward();
+            this.reward = account.getCredit();
         }
     }
 }
