@@ -3,7 +3,6 @@ package com.yincheng.game.web.controller;
 import com.yincheng.game.common.exception.BusinessException;
 import com.yincheng.game.common.exception.EmBusinessError;
 import com.yincheng.game.job.Constants;
-import com.yincheng.game.job.GameFlowJob;
 import com.yincheng.game.job.GameFlowJobManager;
 import com.yincheng.game.model.Result;
 import com.yincheng.game.model.po.GameFlow;
@@ -81,7 +80,7 @@ public class JobController {
         } else {
             boolean exists = quartzService.exists(jobName, jobName);
             if (exists) {
-                quartzService.updateJob(jobName, jobName, game.getCron());
+                quartzService.updateJobCron(jobName, jobName, game.getCron());
             } else {
                 gameFlowJobManager.addJob(game);
             }

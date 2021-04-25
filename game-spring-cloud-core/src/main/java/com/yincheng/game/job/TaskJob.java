@@ -42,10 +42,18 @@ public class TaskJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         JobDataMap dataMap = context.getMergedJobDataMap();
-        Object task = dataMap.get(MAP_KEY_TASK);
+        Object o = dataMap.get(MAP_KEY_TASK);
         Object gameName = dataMap.get(MAP_KEY_GAME_NAME);
-        if (task instanceof Task && gameName instanceof String) {
-            betHistoryService.settle((String) gameName, (Task) task, true);
+        if (o instanceof Task && gameName instanceof String) {
+            Task task = (Task) o;
+            String jobName = jobName(task.getGameId(), task.getPeriod());
+            String groupName = groupName();
+            logger.info("开始执行任务：{} {}", groupName, jobName);
+            betHistoryService.settle((String) gameName, task, true);
+            if (quartzService.exists(jobName, groupName)) {
+                quartzService.deleteJob(jobName, groupName);
+            }
+            logger.info("结束执行任务：{} {}", groupName, jobName);
         }
     }
 }
