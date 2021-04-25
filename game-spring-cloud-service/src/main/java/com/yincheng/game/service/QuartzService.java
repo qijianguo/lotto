@@ -51,7 +51,7 @@ public class QuartzService {
             Trigger trigger;
             if (runTimes < 0) {
                 trigger = TriggerBuilder.newTrigger().withIdentity(jobName, jobGroupName)
-                        .withSchedule(SimpleScheduleBuilder.repeatSecondlyForever(1).withIntervalInSeconds(intervalSeconds))
+                        .withSchedule(SimpleScheduleBuilder.repeatSecondlyForever().withIntervalInSeconds(intervalSeconds))
                         .startNow().build();
             } else {
                 trigger = TriggerBuilder
@@ -59,6 +59,33 @@ public class QuartzService {
                                 .repeatSecondlyForever(1).withIntervalInSeconds(intervalSeconds).withRepeatCount(runTimes))
                         .startNow().build();
             }
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 增加一个job
+     *
+     * @param jobClass     任务实现类
+     * @param jobName      任务名称
+     * @param jobGroupName 任务组名
+     * @param jobData      参数
+     */
+    public void addJob(Class<? extends QuartzJobBean> jobClass, String jobName, String jobGroupName, Map jobData) {
+        try {
+            // 任务名称和组构成任务key
+            JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroupName)
+                    .build();
+            // 设置job参数
+            if (jobData != null && jobData.size() > 0) {
+                jobDetail.getJobDataMap().putAll(jobData);
+            }
+            // 使用simpleTrigger规则
+            Trigger trigger = TriggerBuilder
+                    .newTrigger().withIdentity(jobName, jobGroupName)
+                    .startNow().build();
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException e) {
             logger.error(e.getMessage(), e);

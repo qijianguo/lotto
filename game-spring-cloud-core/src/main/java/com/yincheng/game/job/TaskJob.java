@@ -36,7 +36,7 @@ public class TaskJob extends QuartzJobBean {
         Map<String, Object> map = new HashMap<>(2);
         map.put(MAP_KEY_TASK, task);
         map.put(MAP_KEY_GAME_NAME, gameFlow.getName());
-        quartzService.addJob(TaskJob.class, jobName(task.getGameId(), task.getPeriod()), groupName(), 1, 1, map);
+        quartzService.addJob(TaskJob.class, jobName(task.getGameId(), task.getPeriod()), groupName(), map);
     }
 
     @Override
@@ -50,9 +50,6 @@ public class TaskJob extends QuartzJobBean {
             String groupName = groupName();
             logger.info("开始执行任务：{} {}", groupName, jobName);
             betHistoryService.settle((String) gameName, task, true);
-            if (quartzService.exists(jobName, groupName)) {
-                quartzService.deleteJob(jobName, groupName);
-            }
             logger.info("结束执行任务：{} {}", groupName, jobName);
         }
     }
