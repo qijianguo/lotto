@@ -31,7 +31,7 @@ public class TokenServiceImpl implements TokenService {
 
     private static final long EXPIRE_DATE = 30*60*100000;
 
-    private static final String TOKEN_SECRET = "ZCEQIUBFKSJBFJH2020BQWE";
+    private static final String TOKEN_SECRET = "ZCEQIU****20BQWE";
 
     @Override
     public String create(User user) {
