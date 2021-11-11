@@ -10,7 +10,7 @@
         </encoder>
     </appender>
     <!-- 输出日志文件 -->
-    <appender name="File"  class="com.yincheng.game.web.logbak.GameFlowFileAppender">
+    <appender name="File"  class="com.qijianguo.game.web.logbak.GameFlowFileAppender">
         <file>${WORKSPACE}/gameFlow-flow.log</file>
         <append>true</append>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -19,7 +19,7 @@
         </encoder>
     </appender>
     <!-- WebSocket输出日志 -->
-    <appender name="WebSocket" class="com.yincheng.game.web.logbak.GameFlowWebSocketAppender"/>
+    <appender name="WebSocket" class="com.qijianguo.game.web.logbak.GameFlowWebSocketAppender"/>
     <!-- 日志输出级别 -->
     <root level="${LOG_LEVEL}">
         <appender-ref ref="Stdout" />

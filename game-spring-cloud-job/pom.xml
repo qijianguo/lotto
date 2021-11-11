@@ -13,7 +13,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>com.yincheng.game.job.JobApplication</start-class>
+        <start-class>com.qijianguo.game.job.JobApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
